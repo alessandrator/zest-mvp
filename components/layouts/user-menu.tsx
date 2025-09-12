@@ -6,13 +6,22 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@/types'
-import { getRoleDisplayName } from '@/lib/auth'
 import { getInitials } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, User as UserIcon, Settings, LogOut } from 'lucide-react'
 
 interface UserMenuProps {
   user: User
+}
+
+// Role display names
+const roleNames: Record<string, string> = {
+  super_admin: 'Super Admin',
+  brand: 'Brand',
+  school_admin: 'School Admin',
+  student: 'Student',
+  consumer: 'Consumer',
+  influencer: 'Influencer',
 }
 
 export function UserMenu({ user }: UserMenuProps) {
@@ -82,7 +91,7 @@ export function UserMenu({ user }: UserMenuProps) {
               </p>
               <p className="text-sm text-gray-600">{user.email}</p>
               <p className="text-xs text-gray-500 mt-1">
-                {getRoleDisplayName(user.role)}
+                {roleNames[user.role] || user.role}
               </p>
             </div>
             
