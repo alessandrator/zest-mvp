@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navbar } from "@/components/layouts/navbar";
 import { getCurrentUser } from "@/lib/auth";
+import { HeroSection } from "@/components/hero-section";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -12,36 +13,7 @@ export default async function Home() {
       <Navbar user={user} />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-display font-bold text-dark mb-6">
-              Connect Brands with 
-              <span className="text-primary block">Student Creators</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              ZEST bridges the gap between innovative brands and talented students, 
-              creating authentic marketing campaigns that resonate with younger audiences.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {user ? (
-                <Button size="lg" asChild>
-                  <Link href="/dashboard">Go to Dashboard</Link>
-                </Button>
-              ) : (
-                <>
-                  <Button size="lg" asChild>
-                    <Link href="/request-access">Get Started</Link>
-                  </Button>
-                  <Button variant="outline" size="lg" asChild>
-                    <Link href="/campaigns">Browse Campaigns</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Features Section */}
       <section className="py-20">
