@@ -9,7 +9,7 @@ export default async function Home() {
   const user = await getCurrentUser();
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
       <Navbar user={user} />
       
       {/* Animated Hero Section */}
@@ -72,7 +72,7 @@ export default async function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="bg-gray-50 py-20">
+      <section className="bg-gray-200 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark mb-4">
@@ -147,9 +147,9 @@ export default async function Home() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <div className="bg-primary rounded-lg p-2">
-                  <span className="text-dark font-display font-bold text-xl">Z</span>
+                  <span className="text-dark zest-logo font-black text-xl">Z</span>
                 </div>
-                <span className="font-display font-bold text-xl">ZEST</span>
+                <span className="zest-logo font-black text-xl">ZEST</span>
               </div>
               <p className="text-gray-400">
                 Connecting brands with student creators for authentic marketing campaigns.
