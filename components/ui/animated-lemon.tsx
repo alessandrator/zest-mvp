@@ -9,10 +9,10 @@ interface AnimatedLemonProps {
 
 export function AnimatedLemon({ className = "" }: AnimatedLemonProps) {
   const textItems = [
-    { text: "BEST BRANDS", angle: 0 },
-    { text: "SUSTAINABLE", angle: 90 },
-    { text: "DREAMERS", angle: 180 },
-    { text: "CREATIVE MINDS", angle: 270 },
+    { text: "BEST BRANDS", startOffset: "0%" },
+    { text: "SUSTAINABLE", startOffset: "25%" },
+    { text: "DREAMERS", startOffset: "50%" },
+    { text: "CREATIVE MINDS", startOffset: "75%" },
   ];
 
   return (
@@ -22,92 +22,107 @@ export function AnimatedLemon({ className = "" }: AnimatedLemonProps) {
         className="absolute inset-0"
         animate={{ rotate: 360 }}
         transition={{
-          duration: 30,
+          duration: 25,
           repeat: Infinity,
           ease: "linear"
         }}
       >
-        {textItems.map((item, index) => (
-          <div
-            key={index}
-            className="absolute inset-0"
-            style={{
-              transform: `rotate(${item.angle}deg)`,
-            }}
-          >
-            {/* Curved text along circular path */}
-            <svg
-              viewBox="0 0 200 200"
-              className="w-full h-full"
-              style={{ overflow: "visible" }}
+        <svg
+          viewBox="0 0 200 200"
+          className="w-full h-full"
+          style={{ overflow: "visible" }}
+        >
+          <defs>
+            {/* Define circular path for text */}
+            <path
+              id="text-circle"
+              d="M 100,100 m -75,0 a 75,75 0 1,1 150,0 a 75,75 0 1,1 -150,0"
+            />
+          </defs>
+          
+          {textItems.map((item, index) => (
+            <motion.text
+              key={index}
+              className="text-xs font-bold fill-primary"
+              style={{
+                fontSize: "10px",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                transformOrigin: "100px 100px",
+              }}
+              animate={{ rotate: -360 }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "linear"
+              }}
             >
-              <defs>
-                <path
-                  id={`circle-${index}`}
-                  d="M 100,100 m -85,0 a 85,85 0 1,1 170,0 a 85,85 0 1,1 -170,0"
-                />
-              </defs>
-              <motion.text
-                className="text-xs font-bold fill-primary"
-                animate={{ rotate: -360 }}
-                transition={{
-                  duration: 30,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{
-                  transformOrigin: "100px 100px",
-                }}
-              >
-                <textPath href={`#circle-${index}`} startOffset="0%">
-                  {item.text}
-                </textPath>
-              </motion.text>
-            </svg>
-          </div>
-        ))}
+              <textPath href="#text-circle" startOffset={item.startOffset}>
+                {item.text}
+              </textPath>
+            </motion.text>
+          ))}
+        </svg>
       </motion.div>
 
       {/* Central Lemon Image */}
       <motion.div
         className="relative z-10 flex items-center justify-center w-32 h-32 mx-auto"
         animate={{
-          y: [0, -10, 0],
-          scale: [1, 1.05, 1],
+          y: [0, -8, 0],
+          scale: [1, 1.03, 1],
         }}
         transition={{
-          duration: 3,
+          duration: 4,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       >
         {/* TODO: Replace with actual 7.png when provided */}
-        <div className="w-20 h-20 relative">
+        <div className="w-16 h-16 relative">
           <Image
             src="/images/lemon-placeholder.svg"
             alt="Lemon"
-            width={80}
-            height={80}
+            width={64}
+            height={64}
             className="w-full h-full"
           />
         </div>
       </motion.div>
 
-      {/* Additional orbiting elements for visual interest */}
+      {/* Additional floating elements for visual interest */}
       <motion.div
         className="absolute inset-0"
         animate={{ rotate: -360 }}
         transition={{
-          duration: 40,
+          duration: 35,
           repeat: Infinity,
           ease: "linear"
         }}
       >
-        <div className="absolute top-4 left-1/2 w-2 h-2 bg-primary/60 rounded-full transform -translate-x-1/2" />
-        <div className="absolute bottom-4 left-1/2 w-1 h-1 bg-primary/40 rounded-full transform -translate-x-1/2" />
-        <div className="absolute left-4 top-1/2 w-1.5 h-1.5 bg-primary/50 rounded-full transform -translate-y-1/2" />
-        <div className="absolute right-4 top-1/2 w-1 h-1 bg-primary/30 rounded-full transform -translate-y-1/2" />
+        <div className="absolute top-3 left-1/2 w-1.5 h-1.5 bg-primary/50 rounded-full transform -translate-x-1/2" />
+        <div className="absolute bottom-3 left-1/2 w-1 h-1 bg-primary/30 rounded-full transform -translate-x-1/2" />
+        <div className="absolute left-3 top-1/2 w-1 h-1 bg-primary/40 rounded-full transform -translate-y-1/2" />
+        <div className="absolute right-3 top-1/2 w-1.5 h-1.5 bg-primary/60 rounded-full transform -translate-y-1/2" />
       </motion.div>
+
+      {/* Subtle ring around the lemon */}
+      <motion.div
+        className="absolute inset-0 rounded-full border border-primary/10"
+        style={{
+          width: "150px",
+          height: "150px",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
     </div>
   );
 }
