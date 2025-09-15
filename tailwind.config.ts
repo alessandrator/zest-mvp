@@ -40,6 +40,10 @@ const config: Config = {
         gray: {
           light: "#BFBFBF",
         },
+        muted: {
+          DEFAULT: "hsl(210 40% 98%)",
+          foreground: "hsl(215.4 16.3% 46.9%)",
+        },
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
