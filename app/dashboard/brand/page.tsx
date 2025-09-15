@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/layouts/navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { CampaignAnalytics } from '@/components/ui/campaign-analytics'
 import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import { Upload, Download, BarChart3, Users, Target, FileText } from 'lucide-react'
@@ -191,6 +192,11 @@ export default async function BrandDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Campaign Analytics */}
+        <div className="mt-8">
+          <CampaignAnalytics />
+        </div>
       </div>
     </div>
   )
