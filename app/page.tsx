@@ -6,7 +6,7 @@ export default async function Home() {
   const user = await getCurrentUser();
 
   return (
-    <div className="min-h-screen bg-gray-400 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-200 overflow-x-hidden">
       <Navbar user={user} />
       
       {/* New Hero Section - faithful to the provided design */}
