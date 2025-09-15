@@ -12,7 +12,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ user }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-primary/5 via-white to-primary/10 flex items-center">
+    <section className="relative min-h-screen bg-gray-100 flex items-center">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - ZEST Logo and Text */}
@@ -29,7 +29,7 @@ export function HeroSection({ user }: HeroSectionProps) {
               animate={{ scale: 1 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
             >
-              <h1 className="text-8xl md:text-9xl font-display font-black text-dark leading-none">
+              <h1 className="text-8xl md:text-9xl zest-logo font-black text-dark leading-none">
                 Z
                 <motion.span
                   className="text-primary"
