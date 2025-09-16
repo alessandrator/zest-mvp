@@ -32,6 +32,9 @@ export default async function DashboardPage() {
   if (user.role === 'school_admin') {
     redirect('/dashboard/school')
   }
+  if (user.role === 'student') {
+    redirect('/dashboard/student')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

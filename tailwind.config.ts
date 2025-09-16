@@ -12,13 +12,13 @@ const config: Config = {
       colors: {
         // ZEST Brand Colors
         primary: {
-          DEFAULT: "#F6E05E", // Yellow
+          DEFAULT: "#fcff59", // ZEST Yellow Background
           50: "#FEFCE8",
           100: "#FEF9C3", 
           200: "#FEF08A",
           300: "#FDE047",
           400: "#FACC15",
-          500: "#F6E05E",
+          500: "#fcff59",
           600: "#CA8A04",
           700: "#A16207",
           800: "#854D0E",
@@ -45,7 +45,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-        display: ["Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        display: ["Gaiza Stencil", "Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        stencil: ["Gaiza Stencil", "Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
       },
     },
   },
