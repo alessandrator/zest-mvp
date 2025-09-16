@@ -3,7 +3,7 @@ import { requireRole } from '@/lib/auth'
 import { materialsService } from '@/lib/services/materials'
 import { correctionsService } from '@/lib/services/corrections'
 import { notificationsService } from '@/lib/services/notifications'
-import { StudentDashboard } from '@/components/dashboards/student-dashboard'
+import { StudentDashboardInteractive } from '@/components/dashboards/student-dashboard-interactive'
 
 /**
  * Student Dashboard Page
@@ -71,7 +71,7 @@ export default async function StudentDashboardPage() {
       }
     }
 
-    return <StudentDashboard {...dashboardData} />
+    return <StudentDashboardInteractive {...dashboardData} />
 
   } catch (error) {
     console.error('Student dashboard error:', error)

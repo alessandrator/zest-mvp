@@ -48,7 +48,7 @@ function useApi<T>() {
       }
 
       const result: ApiResponse<T> | T = await response.json()
-      const data = 'data' in result ? result.data : result
+      const data = result && typeof result === 'object' && 'data' in result ? (result as ApiResponse<T>).data : result as T
       
       setState({ data: data as T, loading: false, error: null })
       return data as T
