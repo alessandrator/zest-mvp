@@ -40,6 +40,9 @@ const config: Config = {
         gray: {
           light: "#BFBFBF",
         },
+        brand: {
+          bg: "#fcff59",
+        },
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
