@@ -1,4 +1,4 @@
-import { User, Material, Correction, UserPermissions, Notification, School, Brand } from '@/types'
+import { User, Material, Correction, UserPermissions, Notification, School, Brand, Campaign, CampaignApplication } from '@/types'
 
 /**
  * Demo Data for MVP
@@ -453,6 +453,78 @@ const demoNotifications: Notification[] = [
   }
 ]
 
+// Demo Campaigns
+const demoCampaigns: Campaign[] = [
+  {
+    id: 'campaign_001',
+    brand_id: 'brand_1',
+    title: 'TechFlow App Launch Campaign',
+    description: 'Help us promote our new productivity app to university students',
+    budget_min: 500,
+    budget_max: 1500,
+    target_audience: ['students', 'young professionals'],
+    requirements: ['Social media presence', 'Tech-savvy audience'],
+    deliverables: ['Instagram posts', 'Story content', 'App review video'],
+    deadline: '2024-03-15T00:00:00Z',
+    status: 'active',
+    public: true,
+    created_at: '2024-02-01T09:00:00Z',
+    updated_at: '2024-02-01T09:00:00Z'
+  },
+  {
+    id: 'campaign_002',
+    brand_id: 'brand_2',
+    title: 'EcoLife Sustainable Living Challenge',
+    description: 'Join our 30-day sustainable living challenge and inspire others',
+    budget_min: 300,
+    budget_max: 800,
+    target_audience: ['eco-conscious youth', 'lifestyle enthusiasts'],
+    requirements: ['Environmental awareness', 'Active social media'],
+    deliverables: ['Daily challenge posts', 'Tips and tricks content', 'Final transformation video'],
+    deadline: '2024-02-28T00:00:00Z',
+    status: 'active',
+    public: true,
+    created_at: '2024-01-20T14:00:00Z',
+    updated_at: '2024-01-20T14:00:00Z'
+  }
+]
+
+// Demo Campaign Applications
+const demoCampaignApplications: CampaignApplication[] = [
+  {
+    id: 'app_001',
+    campaign_id: 'campaign_001',
+    user_id: 'user_student_1',
+    message: 'I am very interested in promoting TechFlow. As an economics student with a passion for productivity tools, I believe I can effectively reach the target audience.',
+    portfolio_url: 'https://marcoverdi.portfolio.com',
+    expected_budget: 1000,
+    status: 'pending',
+    created_at: '2024-02-02T10:00:00Z',
+    updated_at: '2024-02-02T10:00:00Z'
+  },
+  {
+    id: 'app_002',
+    campaign_id: 'campaign_002',
+    user_id: 'user_influencer_1',
+    message: 'EcoLife aligns perfectly with my values and content. I have been promoting sustainable living for 2 years and have an engaged eco-conscious audience.',
+    portfolio_url: 'https://luciaferrari.com/portfolio',
+    expected_budget: 750,
+    status: 'approved',
+    created_at: '2024-01-25T16:00:00Z',
+    updated_at: '2024-01-28T09:00:00Z'
+  },
+  {
+    id: 'app_003',
+    campaign_id: 'campaign_001',
+    user_id: 'user_student_2',
+    message: 'As an engineering student, I understand the technical aspects of productivity apps and can create detailed reviews that highlight the app\'s features.',
+    expected_budget: 800,
+    status: 'pending',
+    created_at: '2024-02-03T12:00:00Z',
+    updated_at: '2024-02-03T12:00:00Z'
+  }
+]
+
 // Export demo data
 export const demoData = {
   schools: demoSchools,
@@ -461,7 +533,9 @@ export const demoData = {
   materials: demoMaterials,
   corrections: demoCorrections,
   permissions: demoPermissions,
-  notifications: demoNotifications
+  notifications: demoNotifications,
+  campaigns: demoCampaigns,
+  campaignApplications: demoCampaignApplications
 }
 
 /**
