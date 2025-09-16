@@ -19,13 +19,21 @@ body {
   
   body {
     @apply bg-white text-dark;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     @apply font-semibold;
   }
+}
+
+/* Custom font definition for Gaiza Stencil - using system monospace with stencil styling */
+.font-gaiza-stencil {
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: lowercase;
 }
 
 @layer components {
