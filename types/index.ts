@@ -103,3 +103,91 @@ export interface Notification {
   action_url?: string;
   created_at: string;
 }
+
+// New types for the backend services
+
+export interface Material {
+  id: string;
+  student_id: string;
+  school_id?: string;
+  title: string;
+  description: string;
+  file_url?: string;
+  file_type: string;
+  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'requires_changes';
+  visibility: 'private' | 'school' | 'public';
+  subject?: string;
+  tags: string[];
+  metadata: Record<string, unknown>;
+  submitted_at?: string;
+  reviewed_at?: string;
+  approved_at?: string;
+  created_at: string;
+  updated_at: string;
+  student?: User;
+  school?: School;
+  corrections?: Correction[];
+}
+
+export interface Correction {
+  id: string;
+  material_id: string;
+  teacher_id: string;
+  content: string;
+  type: 'feedback' | 'suggestion' | 'error' | 'approval' | 'rejection';
+  status: 'active' | 'resolved' | 'archived';
+  line_number?: number;
+  highlight_text?: string;
+  created_at: string;
+  updated_at: string;
+  teacher?: User;
+  material?: Material;
+}
+
+export interface Permission {
+  id: string;
+  user_id: string;
+  granted_by: string;
+  permission_type: 'upload' | 'review' | 'approve' | 'manage_school' | 'manage_users';
+  resource_id?: string;
+  resource_type?: string;
+  active: boolean;
+  expires_at?: string;
+  reason?: string;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+  granted_by_user?: User;
+}
+
+export interface UserPermissions {
+  user_id: string;
+  can_upload: boolean;
+  can_review: boolean;
+  can_approve: boolean;
+  can_manage_school: boolean;
+  can_manage_users: boolean;
+  is_blocked: boolean;
+  block_reason?: string;
+  blocked_at?: string;
+  blocked_by?: string;
+}
+
+// API Response types
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ApiError {
+  error: string;
+  code?: string;
+  details?: unknown;
+}
