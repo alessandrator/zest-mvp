@@ -32,6 +32,9 @@ export default async function DashboardPage() {
   if (user.role === 'school_admin') {
     redirect('/dashboard/school')
   }
+  if (user.role === 'influencer') {
+    redirect('/dashboard/influencer')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -151,14 +154,6 @@ export default async function DashboardPage() {
                   View My Applications
                 </Link>
               </Button>
-              
-              {user.role === 'influencer' && (
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link href="/dashboard/portfolio">
-                    Manage Portfolio
-                  </Link>
-                </Button>
-              )}
             </CardContent>
           </Card>
         </div>
