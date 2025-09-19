@@ -136,6 +136,22 @@ CREATE TABLE notifications (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Access requests table
+CREATE TABLE access_requests (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  role user_role NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  company VARCHAR(255),
+  message TEXT NOT NULL,
+  status VARCHAR(50) DEFAULT 'pending',
+  processed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  processed_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
 CREATE INDEX idx_user_profiles_role ON user_profiles(role);
@@ -149,6 +165,9 @@ CREATE INDEX idx_campaign_applications_user_id ON campaign_applications(user_id)
 CREATE INDEX idx_campaign_applications_status ON campaign_applications(status);
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_read ON notifications(read);
+CREATE INDEX idx_access_requests_email ON access_requests(email);
+CREATE INDEX idx_access_requests_status ON access_requests(status);
+CREATE INDEX idx_access_requests_created_at ON access_requests(created_at);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -165,3 +184,4 @@ CREATE TRIGGER update_brands_updated_at BEFORE UPDATE ON brands FOR EACH ROW EXE
 CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_campaigns_updated_at BEFORE UPDATE ON campaigns FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_campaign_applications_updated_at BEFORE UPDATE ON campaign_applications FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_access_requests_updated_at BEFORE UPDATE ON access_requests FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

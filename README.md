@@ -7,10 +7,13 @@ Connect brands with students and influencers through innovative digital marketin
 - **Multi-Role Authentication**: Support for super admins, brands, school admins, students, consumers, and influencers
 - **Campaign Management**: Brands can create and manage marketing campaigns
 - **Application System**: Creators can apply to campaigns with portfolios and proposals
+- **Access Request System**: New users can request access with approval workflow
+- **Password Reset**: Secure forgot password functionality with email verification
 - **Role-Based Access Control (RBAC)**: Secure access control based on user roles
 - **Responsive Design**: Modern, mobile-first design with TailwindCSS
 - **Type Safety**: Full TypeScript implementation with Zod validation
 - **Real-time Updates**: Built on Supabase for real-time data synchronization
+- **Environment Validation**: Runtime checks for required configuration
 
 ## 🛠 Tech Stack
 
@@ -97,8 +100,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 #### Create tables and policies
 Run the SQL files in your Supabase SQL editor in this order:
-1. `db/schema.sql` - Creates tables and indexes
-2. `db/policies.sql` - Sets up Row Level Security
+1. `db/schema.sql` - Creates tables and indexes (including new `access_requests` table)
+2. `db/policies.sql` - Sets up Row Level Security policies
 3. `db/seed.sql` - Adds sample data (optional)
 
 #### Enable Authentication
@@ -106,6 +109,8 @@ In your Supabase dashboard:
 1. Go to Authentication > Settings
 2. Enable email authentication
 3. Configure any additional providers needed
+
+For detailed setup instructions and troubleshooting, see [docs/SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md)
 
 ### 5. Run the development server
 ```bash

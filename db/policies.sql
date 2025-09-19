@@ -8,6 +8,7 @@ ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE campaign_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE access_requests ENABLE ROW LEVEL SECURITY;
 
 -- Helper function to get current user's role
 CREATE OR REPLACE FUNCTION get_user_role()
@@ -157,3 +158,16 @@ CREATE POLICY "System can insert notifications" ON notifications
 
 CREATE POLICY "Super admins can do anything with notifications" ON notifications
   FOR ALL USING (is_super_admin());
+
+-- Access requests policies
+CREATE POLICY "Anyone can insert access requests" ON access_requests
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Super admins can read all access requests" ON access_requests
+  FOR SELECT USING (is_super_admin());
+
+CREATE POLICY "Super admins can update access requests" ON access_requests
+  FOR UPDATE USING (is_super_admin());
+
+CREATE POLICY "Super admins can delete access requests" ON access_requests
+  FOR DELETE USING (is_super_admin());
