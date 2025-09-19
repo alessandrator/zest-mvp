@@ -30,8 +30,4 @@ h1, h2, h3, h4, h5, h6 {
   .card {
     @apply bg-white rounded-lg border border-gray-200 shadow-sm;
   }
-
-  .text-balance {
-    text-wrap: balance;
-  }
 }
