@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading'
 import { requestAccessSchema } from '@/lib/validations'
+import { isPersonalEmailDomain, getCorporateEmailErrorMessage } from '@/lib/utils/email'
 import { UserRole } from '@/types'
 import { toast } from 'sonner'
 
@@ -22,6 +23,22 @@ export default function RequestAccessPage() {
   })
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [emailValidationError, setEmailValidationError] = useState<string | null>(null)
+
+  // Real-time email validation for corporate roles
+  useEffect(() => {
+    if (formData.email && (formData.role === 'brand' || formData.role === 'school_admin')) {
+      if (isPersonalEmailDomain(formData.email)) {
+        setEmailValidationError(getCorporateEmailErrorMessage(formData.role))
+      } else {
+        setEmailValidationError(null)
+      }
+    } else {
+      setEmailValidationError(null)
+    }
+  }, [formData.email, formData.role])
+
+  const requiresCorporateEmail = formData.role === 'brand' || formData.role === 'school_admin'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -148,6 +165,11 @@ export default function RequestAccessPage() {
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-dark">
                   Email address
+                  {requiresCorporateEmail && (
+                    <span className="ml-1 text-xs text-gray-500">
+                      (Company/institutional email required)
+                    </span>
+                  )}
                 </label>
                 <div className="mt-1">
                   <Input
@@ -157,8 +179,21 @@ export default function RequestAccessPage() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="john@example.com"
+                    placeholder={
+                      requiresCorporateEmail 
+                        ? formData.role === 'brand' 
+                          ? 'john@yourcompany.com' 
+                          : 'john@yourinstitution.edu'
+                        : 'john@example.com'
+                    }
+                    className={emailValidationError ? 'border-red-500 focus:ring-red-500' : ''}
                   />
+                  {emailValidationError && (
+                    <p className="mt-1 text-sm text-red-600">{emailValidationError}</p>
+                  )}
+                  {requiresCorporateEmail && !emailValidationError && formData.email && (
+                    <p className="mt-1 text-sm text-green-600">✓ Valid corporate email</p>
+                  )}
                 </div>
               </div>
 
@@ -177,10 +212,17 @@ export default function RequestAccessPage() {
                     <option value="student">Student</option>
                     <option value="influencer">Influencer</option>
                     <option value="consumer">Consumer</option>
-                    <option value="brand">Brand Representative</option>
-                    <option value="school_admin">School Administrator</option>
+                    <option value="brand">Brand Representative (Requires corporate email)</option>
+                    <option value="school_admin">School Administrator (Requires institutional email)</option>
                   </select>
                 </div>
+                {requiresCorporateEmail && (
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-sm text-blue-800">
+                      <strong>Email Requirements:</strong> {formData.role === 'brand' ? 'Company' : 'School/institutional'} representatives must use their official work email address. Personal email providers (Gmail, Yahoo, Outlook, etc.) are not allowed.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {(formData.role === 'brand' || formData.role === 'school_admin') && (
@@ -222,7 +264,7 @@ export default function RequestAccessPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={loading}
+                  disabled={loading || !!emailValidationError}
                 >
                   {loading ? (
                     <>
@@ -233,6 +275,11 @@ export default function RequestAccessPage() {
                     'Submit Request'
                   )}
                 </Button>
+                {emailValidationError && (
+                  <p className="mt-2 text-sm text-red-600 text-center">
+                    Please fix the email address before submitting
+                  </p>
+                )}
               </div>
             </form>
           </CardContent>

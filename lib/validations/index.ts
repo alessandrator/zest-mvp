@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isCorporateEmail } from '@/lib/utils/email'
 
 // User Profile Schemas
 export const userProfileSchema = z.object({
@@ -20,7 +21,19 @@ export const signUpSchema = z.object({
   company: z.string().optional(),
   school_id: z.string().uuid().optional(),
   brand_id: z.string().uuid().optional(),
-})
+}).refine(
+  (data) => {
+    // Only validate corporate email for brand and school_admin roles
+    if (data.role === 'brand' || data.role === 'school_admin') {
+      return isCorporateEmail(data.email)
+    }
+    return true
+  },
+  {
+    message: 'Please use your official company/institutional email address. Personal email providers are not allowed for this role.',
+    path: ['email'],
+  }
+)
 
 export const signInSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -86,7 +99,19 @@ export const requestAccessSchema = z.object({
   last_name: z.string().min(1, 'Last name is required').max(100),
   company: z.string().max(255).optional(),
   message: z.string().min(1, 'Message is required').max(500),
-})
+}).refine(
+  (data) => {
+    // Only validate corporate email for brand and school_admin roles
+    if (data.role === 'brand' || data.role === 'school_admin') {
+      return isCorporateEmail(data.email)
+    }
+    return true
+  },
+  {
+    message: 'Please use your official company/institutional email address. Personal email providers are not allowed for this role.',
+    path: ['email'],
+  }
+)
 
 // File Upload Schema
 export const fileUploadSchema = z.object({
