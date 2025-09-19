@@ -11,6 +11,11 @@ export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
+  // Skip Supabase client creation if using placeholder values
+  if (supabaseUrl.includes('placeholder') || supabaseAnonKey.includes('placeholder')) {
+    return supabaseResponse
+  }
+
   const supabase = createServerClient<Database>(
     supabaseUrl,
     supabaseAnonKey,
@@ -43,6 +48,8 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/campaigns') &&
     !request.nextUrl.pathname.startsWith('/request-access') &&
+    !request.nextUrl.pathname.startsWith('/forgot-password') &&
+    !request.nextUrl.pathname.startsWith('/reset-password') &&
     !request.nextUrl.pathname.startsWith('/dashboard/demo') &&
     request.nextUrl.pathname !== '/'
   ) {

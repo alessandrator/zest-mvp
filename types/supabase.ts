@@ -265,6 +265,50 @@ export interface Database {
           created_at?: string;
         };
       };
+      access_requests: {
+        Row: {
+          id: string;
+          email: string;
+          role: 'super_admin' | 'brand' | 'school_admin' | 'student' | 'consumer' | 'influencer';
+          first_name: string;
+          last_name: string;
+          company: string | null;
+          message: string;
+          status: string;
+          processed_by: string | null;
+          processed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          role: 'super_admin' | 'brand' | 'school_admin' | 'student' | 'consumer' | 'influencer';
+          first_name: string;
+          last_name: string;
+          company?: string | null;
+          message: string;
+          status?: string;
+          processed_by?: string | null;
+          processed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          role?: 'super_admin' | 'brand' | 'school_admin' | 'student' | 'consumer' | 'influencer';
+          first_name?: string;
+          last_name?: string;
+          company?: string | null;
+          message?: string;
+          status?: string;
+          processed_by?: string | null;
+          processed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

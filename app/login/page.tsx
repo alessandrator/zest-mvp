@@ -16,7 +16,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +25,7 @@ export default function LoginPage() {
       // Validate input
       const validatedData = signInSchema.parse({ email, password })
       
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
         password: validatedData.password,

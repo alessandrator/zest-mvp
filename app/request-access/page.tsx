@@ -31,12 +31,23 @@ export default function RequestAccessPage() {
       // Validate input
       requestAccessSchema.parse(formData)
       
-      // In a real implementation, this would send to an API endpoint
-      // For now, we'll simulate the request
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      toast.success('Access request submitted successfully!')
-      setSubmitted(true)
+      // Send request to API endpoint
+      const response = await fetch('/api/request-access', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        toast.success(result.message || 'Access request submitted successfully!')
+        setSubmitted(true)
+      } else {
+        toast.error(result.error || 'Failed to submit access request')
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
