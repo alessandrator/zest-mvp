@@ -16,8 +16,8 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-display font-bold text-dark mb-6">
-              Connect Brands with 
-              <span className="text-primary block">Student Creators</span>
+              New Drops!
+              <span className="text-primary block">Testa.Genera.Rilancia.</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               ZEST bridges the gap between innovative brands and talented students, 
