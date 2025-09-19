@@ -1,31 +1,13 @@
-import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import { Bell, Settings, User, Award, Target, Eye, Play, CheckCircle, AlertCircle } from 'lucide-react'
 
-export default async function UserDashboard() {
-  const user = await getCurrentUser()
-  
-  if (!user) {
-    redirect('/login')
-  }
-
-  // Redirect to role-specific dashboard if available
-  if (user.role === 'super_admin') {
-    redirect('/dashboard/admin')
-  }
-  if (user.role === 'brand') {
-    redirect('/dashboard/brand')
-  }
-  if (user.role === 'school_admin') {
-    redirect('/dashboard/school')
-  }
-
+export default function DemoUserDashboard() {
   /* 
-   * ZEST User Dashboard
+   * ZEST User Dashboard - Demo Version
    * 
+   * This is a demo version showcasing the complete user dashboard design
    * Backend Integration Notes:
    * - Replace demo data with real API calls
    * - Connect to campaigns, badges, notifications, and preferences endpoints
@@ -35,6 +17,11 @@ export default async function UserDashboard() {
 
   // Demo data - replace with real API calls
   const demoData = {
+    user: {
+      first_name: "Marco",
+      last_name: "Rossi",
+      role: "student"
+    },
     profileStatus: 85, // percentage complete
     activeCampaigns: 3,
     badgesEarned: 5,
@@ -111,11 +98,49 @@ export default async function UserDashboard() {
                 <Link href="/logout">Logout</Link>
               </Button>
             </nav>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button variant="ghost" size="sm">Menu</Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden border-t border-gray-200 bg-white px-4 py-3">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <Link href="/dashboard/profile" className="flex flex-col items-center space-y-1 text-zest-black">
+              <User size={16} />
+              <span className="text-xs">Profilo</span>
+            </Link>
+            <Link href="/dashboard/notifications" className="flex flex-col items-center space-y-1 text-zest-black relative">
+              <Bell size={16} />
+              <span className="text-xs">Notifiche</span>
+              {demoData.unreadNotifications > 0 && (
+                <span className="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {demoData.unreadNotifications}
+                </span>
+              )}
+            </Link>
+            <Link href="/campaigns" className="flex flex-col items-center space-y-1 text-zest-black">
+              <Target size={16} />
+              <span className="text-xs">Campagne</span>
+            </Link>
           </div>
         </div>
       </header>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Message */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-stencil font-bold text-zest-black mb-2">
+            Ciao, {demoData.user.first_name}!
+          </h2>
+          <p className="text-zest-black/80">
+            Benvenuto nella tua dashboard ZEST
+          </p>
+        </div>
+
         {/* Hero/Overview Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-stencil font-bold text-zest-black mb-6">Panoramica</h2>
@@ -330,6 +355,14 @@ export default async function UserDashboard() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Demo Notice */}
+        <div className="mt-8 p-4 bg-white/50 rounded-lg border border-gray-200">
+          <p className="text-center text-zest-black/80 text-sm">
+            <strong>Demo Dashboard:</strong> Questa è una versione dimostrativa del dashboard utente ZEST. 
+            I dati mostrati sono placeholder e verranno sostituiti con dati reali dal backend.
+          </p>
         </div>
       </div>
     </div>
