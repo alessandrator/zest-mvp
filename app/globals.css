@@ -10,40 +10,24 @@
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-@layer base {
-  * {
-    @apply border-gray-light/20;
-  }
-  
-  body {
-    @apply bg-white text-dark;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    @apply font-semibold;
-  }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-weight: 600;
 }
 
 @layer components {
   .btn-primary {
     @apply bg-primary hover:bg-primary-600 text-dark font-medium px-4 py-2 rounded-lg transition-colors duration-200;
   }
-  
-  .btn-secondary {
-    @apply bg-white border border-gray-light hover:bg-gray-50 text-dark font-medium px-4 py-2 rounded-lg transition-colors duration-200;
-  }
-  
-  .card {
-    @apply bg-white rounded-lg border border-gray-light/20 shadow-sm;
-  }
-}
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .btn-secondary {
+    @apply bg-white border border-gray-200 hover:bg-gray-50 text-dark font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
   }
 }
