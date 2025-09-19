@@ -4,11 +4,12 @@ import { ReactNode } from "react"
 interface CardProps {
   children: ReactNode
   className?: string
+  id?: string
 }
 
-export function Card({ children, className }: CardProps) {
+export function Card({ children, className, id }: CardProps) {
   return (
-    <div className={cn("card p-6", className)}>
+    <div className={cn("card p-6", className)} id={id}>
       {children}
     </div>
   )

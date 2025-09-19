@@ -22,6 +22,9 @@ export default async function UserDashboard() {
   if (user.role === 'school_admin') {
     redirect('/dashboard/school')
   }
+  if (user.role === 'influencer') {
+    redirect('/dashboard/influencer')
+  }
 
   /* 
    * ZEST User Dashboard
@@ -226,6 +229,7 @@ export default async function UserDashboard() {
             </Card>
           </div>
 
+
           {/* Badges Section */}
           <div>
             <h3 className="text-xl font-stencil font-bold text-zest-black mb-4">Badge e Obiettivi</h3>
@@ -255,6 +259,7 @@ export default async function UserDashboard() {
               </CardContent>
             </Card>
           </div>
+ main
         </div>
 
         {/* Notifications and Preferences Section */}
