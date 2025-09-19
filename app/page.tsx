@@ -12,16 +12,14 @@ export default async function Home() {
       <Navbar user={user} />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-20">
+      <section className="bg-primary py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-display font-bold text-dark mb-6">
-              Connect Brands with 
-              <span className="text-primary block">Student Creators</span>
+              New Drops! Test. Generate. Relaunch.
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              ZEST bridges the gap between innovative brands and talented students, 
-              creating authentic marketing campaigns that resonate with younger audiences.
+            <p className="text-xl text-dark mb-8 max-w-3xl mx-auto">
+              A yellow bridge between brands and creators.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {user ? (
@@ -175,9 +173,9 @@ export default async function Home() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <div className="bg-primary rounded-lg p-2">
-                  <span className="text-dark font-display font-bold text-xl">Z</span>
+                  <span className="text-dark font-logo font-bold text-xl">Z</span>
                 </div>
-                <span className="font-display font-bold text-xl">ZEST</span>
+                <span className="font-logo font-bold text-xl">ZEST</span>
               </div>
               <p className="text-gray-400">
                 Connecting brands with student creators for authentic marketing campaigns.

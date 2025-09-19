@@ -14,6 +14,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Gaiza Stencil font - if available, replace with actual Google Fonts URL */}
+        {/* For now using a stencil-style alternative from Google Fonts */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
         className="font-sans antialiased"
       >
