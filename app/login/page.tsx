@@ -55,9 +55,9 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center items-center space-x-2 mb-8">
           <div className="bg-primary rounded-lg p-2">
-            <span className="text-dark font-display font-bold text-xl">Z</span>
+            <span className="text-dark font-logo font-bold text-xl">Z</span>
           </div>
-          <span className="font-display font-bold text-2xl text-dark">ZEST</span>
+          <span className="font-logo font-bold text-2xl text-dark">ZEST</span>
         </Link>
         
         <h2 className="text-center text-3xl font-display font-bold text-dark">

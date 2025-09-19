@@ -12,12 +12,15 @@ const config: Config = {
       colors: {
         // ZEST Brand Colors
         primary: {
+copilot/fix-48064f88-d2b3-4b8e-9d30-4937d25dac86
           DEFAULT: "#fcff59", // ZEST Yellow (updated to match brand)
+ main
           50: "#FEFCE8",
           100: "#FEF9C3", 
           200: "#FEF08A",
           300: "#FDE047",
           400: "#FACC15",
+copilot/fix-48064f88-d2b3-4b8e-9d30-4937d25dac86
           500: "#fcff59", // ZEST brand color
           600: "#CA8A04",
           700: "#A16207",
@@ -28,7 +31,9 @@ const config: Config = {
         zest: {
           yellow: "#fcff59",
           black: "#000000",
-          white: "#ffffff",
+
+          white: "#ffffff", 
+ main
           gray: "#f5f5f5",
         },
         dark: {
@@ -53,8 +58,11 @@ const config: Config = {
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         display: ["Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-        // Gaiza Stencil alternative - using Impact/bold sans for titles
-        stencil: ["Impact", "Arial Black", "sans-serif"],
+
+
+        stencil: ["Gaiza Stencil", "Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+ main
+ main
       },
     },
   },
