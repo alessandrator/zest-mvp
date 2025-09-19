@@ -43,7 +43,9 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/campaigns') &&
     !request.nextUrl.pathname.startsWith('/request-access') &&
+copilot/fix-e5f2ec0a-d7c0-46d4-891b-ef54f28073c0
     !request.nextUrl.pathname.startsWith('/dashboard/student-preview') &&
+
     request.nextUrl.pathname !== '/'
   ) {
     // no user, potentially respond by redirecting the user to the login page
