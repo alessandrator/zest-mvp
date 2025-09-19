@@ -24,6 +24,13 @@ const config: Config = {
           800: "#854D0E",
           900: "#713F12",
         },
+        // ZEST specific colors
+        zest: {
+          yellow: "#fcff59",
+          black: "#000000",
+          white: "#ffffff", 
+          gray: "#f5f5f5",
+        },
         dark: {
           DEFAULT: "#1A1A1A",
           50: "#F7F7F7",
@@ -46,7 +53,9 @@ const config: Config = {
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         display: ["Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-        stencil: ["Impact", "Arial Black", "Trebuchet MS", "sans-serif"], // Stencil-style fallback
+
+        stencil: ["Gaiza Stencil", "Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+ main
       },
     },
   },
