@@ -9,15 +9,15 @@ interface NavbarProps {
 
 export function Navbar({ user }: NavbarProps) {
   return (
-    <nav className="border-b border-gray-light/20 bg-white sticky top-0 z-50">
+    <nav className="border-b border-gray-light/20 bg-primary sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="bg-primary rounded-lg p-2">
-              <span className="text-dark font-display font-bold text-xl">Z</span>
+            <div className="bg-dark rounded-lg p-2">
+              <span className="text-primary font-logo font-bold text-xl">Z</span>
             </div>
-            <span className="font-display font-bold text-xl text-dark">ZEST</span>
+            <span className="font-logo font-bold text-xl text-dark">ZEST</span>
           </Link>
 
           {/* Navigation Links */}
