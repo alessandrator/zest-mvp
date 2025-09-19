@@ -12,8 +12,8 @@ const config: Config = {
       colors: {
         // ZEST Brand Colors
         primary: {
-
-          DEFAULT: "#fcff59", // ZEST Yellow
+copilot/fix-e5f2ec0a-d7c0-46d4-891b-ef54f28073c0
+          DEFAULT: "#fcff59", // ZEST Yellow Background
  main
           50: "#FEFCE8",
           100: "#FEF9C3", 
@@ -23,6 +23,7 @@ const config: Config = {
 
           500: "#fcff59",
  main
+main
           600: "#CA8A04",
           700: "#A16207",
           800: "#854D0E",
@@ -56,9 +57,11 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+
         display: ["Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
 
         stencil: ["Gaiza Stencil", "Montserrat", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+ main
  main
  main
       },

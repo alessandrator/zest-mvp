@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Gaiza Stencil font - placeholder URL, replace with actual font file */
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #1a1a1a;
@@ -22,9 +25,14 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   }
   
+  /* Use Audiowide as placeholder for Gaiza Stencil */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family: 'Audiowide', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     @apply font-semibold;
+  }
+  
+  .font-stencil {
+    font-family: 'Audiowide', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   }
 }
 
