@@ -75,16 +75,31 @@ export default function RequestAccessPage() {
           router.push('/login')
         }, 2000)
       } else {
-        toast.error(result.error || 'Failed to create account')
+        // Show more detailed error information
+        let errorMessage = result.error || 'Failed to create account'
+        
+        // Add request ID if available for debugging
+        if (result.requestId) {
+          errorMessage += ` (Request ID: ${result.requestId})`
+        }
+        
+        // Add additional details if in development
+        if (result.details && process.env.NODE_ENV === 'development') {
+          errorMessage += ` - ${result.details}`
+        }
+        
+        toast.error(errorMessage)
       }
     } catch (error) {
+      console.error('Registration error:', error)
+      
       if (error instanceof ZodError) {
         const messages = error.issues.map(issue => issue.message)
         toast.error(messages.join(', '))
       } else if (error instanceof Error) {
-        toast.error(error.message)
+        toast.error(`Network error: ${error.message}`)
       } else {
-        toast.error('Please check your input and try again')
+        toast.error('Please check your internet connection and try again')
       }
     } finally {
       setLoading(false)
