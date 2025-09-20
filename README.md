@@ -189,6 +189,44 @@ These requirements are enforced both on the frontend (immediate feedback) and ba
 - Proper foreign key relationships
 - Performance indexes
 
+## 🧪 Testing & UI Feedback
+
+### Comprehensive Testing Guide
+
+For detailed instructions on testing UI feedback, password validation, and user experience, see:
+- **[UI Feedback & User Testing Guide](./docs/UI_FEEDBACK_TESTING.md)** - Complete testing procedures and validation steps
+- **[Supabase Setup & Integration Testing](./docs/SUPABASE_SETUP.md)** - Database integration and API testing
+
+### Quick Testing Summary
+
+#### Authentication Features (Enhanced in PR #25)
+✅ **Password Validation**: Real-time feedback with specific error messages  
+✅ **Role-Based Forms**: Dynamic company field based on user role selection  
+✅ **Error Handling**: Clear, actionable error messages with toast notifications  
+✅ **Success Feedback**: Confirmation messages and proper navigation flow  
+
+#### Testing Checklist
+- [ ] Password validation (8+ chars, uppercase, number)
+- [ ] Role-based form behavior (company field visibility)
+- [ ] Form submission with success/error states
+- [ ] Responsive design across devices
+- [ ] Cross-browser compatibility
+- [ ] Accessibility (keyboard navigation, screen readers)
+
+#### Vercel Preview Testing
+1. Create pull request → Vercel auto-generates preview URL
+2. Test signup form: `https://your-preview-url.vercel.app/signup`
+3. Verify all validation and feedback mechanisms work in production environment
+
+### Error Validation Examples
+
+| Input | Expected Validation Error |
+|-------|-------------------------|
+| `password` | "Password must contain at least one number" |
+| `password123` | "Password must contain at least one uppercase letter" |
+| `Pass1` | "Password must be at least 8 characters" |
+| `Password123` | ✅ Valid (no errors) |
+
 ## 🚀 Deployment
 
 ### Vercel Deployment
@@ -216,8 +254,13 @@ NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🔗 Links
+## 📚 Documentation
 
+### Project Documentation
+- **[UI Feedback & User Testing Guide](./docs/UI_FEEDBACK_TESTING.md)** - Comprehensive testing procedures for UI/UX validation
+- **[Supabase Setup Guide](./docs/SUPABASE_SETUP.md)** - Database integration and API testing instructions
+
+### External Resources
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Supabase Documentation](https://supabase.com/docs)
 - [TailwindCSS Documentation](https://tailwindcss.com/docs)
