@@ -309,6 +309,170 @@ export interface Database {
           updated_at?: string;
         };
       };
+      projects: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          user_id: string;
+          title: string;
+          description: string;
+          file_urls: string[];
+          image_urls: string[];
+          status: 'draft' | 'submitted' | 'approved' | 'rejected';
+          submitted_at: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
+          rejection_reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          user_id: string;
+          title: string;
+          description: string;
+          file_urls?: string[];
+          image_urls?: string[];
+          status?: 'draft' | 'submitted' | 'approved' | 'rejected';
+          submitted_at?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          rejection_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          user_id?: string;
+          title?: string;
+          description?: string;
+          file_urls?: string[];
+          image_urls?: string[];
+          status?: 'draft' | 'submitted' | 'approved' | 'rejected';
+          submitted_at?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          rejection_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      votes: {
+        Row: {
+          id: string;
+          user_id: string;
+          project_id: string | null;
+          campaign_id: string | null;
+          value: number;
+          comment: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          project_id?: string | null;
+          campaign_id?: string | null;
+          value: number;
+          comment?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          project_id?: string | null;
+          campaign_id?: string | null;
+          value?: number;
+          comment?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      market_tests: {
+        Row: {
+          id: string;
+          brand_id: string;
+          school_id: string | null;
+          title: string;
+          description: string;
+          questions: Record<string, any>;
+          responses: Record<string, any>;
+          image_urls: string[];
+          status: 'draft' | 'active' | 'completed' | 'cancelled';
+          target_audience: string[];
+          max_responses: number;
+          expires_at: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          brand_id: string;
+          school_id?: string | null;
+          title: string;
+          description: string;
+          questions?: Record<string, any>;
+          responses?: Record<string, any>;
+          image_urls?: string[];
+          status?: 'draft' | 'active' | 'completed' | 'cancelled';
+          target_audience?: string[];
+          max_responses?: number;
+          expires_at?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          brand_id?: string;
+          school_id?: string | null;
+          title?: string;
+          description?: string;
+          questions?: Record<string, any>;
+          responses?: Record<string, any>;
+          image_urls?: string[];
+          status?: 'draft' | 'active' | 'completed' | 'cancelled';
+          target_audience?: string[];
+          max_responses?: number;
+          expires_at?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      campaign_acceptances: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          user_id: string;
+          accepted_at: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          user_id: string;
+          accepted_at?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          user_id?: string;
+          accepted_at?: string;
+          status?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -321,6 +485,8 @@ export interface Database {
       campaign_status: 'draft' | 'active' | 'paused' | 'completed' | 'cancelled';
       application_status: 'pending' | 'approved' | 'rejected' | 'completed';
       notification_type: 'info' | 'success' | 'warning' | 'error';
+      project_status: 'draft' | 'submitted' | 'approved' | 'rejected';
+      market_test_status: 'draft' | 'active' | 'completed' | 'cancelled';
     };
     CompositeTypes: {
       [_ in never]: never;

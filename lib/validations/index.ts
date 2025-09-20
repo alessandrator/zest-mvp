@@ -102,6 +102,51 @@ export const fileUploadSchema = z.object({
   ),
 })
 
+// Project Schema
+export const projectSchema = z.object({
+  campaign_id: z.string().uuid('Invalid campaign ID'),
+  title: z.string().min(1, 'Title is required').max(255),
+  description: z.string().min(1, 'Description is required').max(2000),
+  file_urls: z.array(z.string().url()).default([]),
+  image_urls: z.array(z.string().url()).default([]),
+})
+
+// Vote Schema
+export const voteSchema = z.object({
+  project_id: z.string().uuid().optional(),
+  campaign_id: z.string().uuid().optional(),
+  value: z.number().int().min(1).max(5),
+  comment: z.string().max(500).optional(),
+}).refine(
+  (data) => Boolean(data.project_id) !== Boolean(data.campaign_id),
+  {
+    message: 'Vote must target either a project or campaign, not both',
+    path: ['project_id'],
+  }
+)
+
+// Market Test Schema
+export const marketTestSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(255),
+  description: z.string().min(1, 'Description is required').max(2000),
+  questions: z.array(z.object({
+    id: z.string(),
+    type: z.enum(['text', 'multiple_choice', 'rating', 'yes_no']),
+    question: z.string().min(1, 'Question is required'),
+    options: z.array(z.string()).optional(),
+    required: z.boolean().default(true),
+  })).min(1, 'At least one question is required'),
+  target_audience: z.array(z.string()).default([]),
+  max_responses: z.number().int().min(1).max(1000).default(100),
+  expires_at: z.string().optional(),
+  school_id: z.string().uuid().optional(),
+})
+
+// Campaign Acceptance Schema  
+export const campaignAcceptanceSchema = z.object({
+  campaign_id: z.string().uuid('Invalid campaign ID'),
+})
+
 // Common validation helpers
 export const emailSchema = z.string().email('Invalid email address')
 export const urlSchema = z.string().url('Invalid URL').optional().or(z.literal(''))
@@ -118,3 +163,7 @@ export type SchoolInput = z.infer<typeof schoolSchema>
 export type BrandInput = z.infer<typeof brandSchema>
 export type RequestAccessInput = z.infer<typeof requestAccessSchema>
 export type FileUploadInput = z.infer<typeof fileUploadSchema>
+export type ProjectInput = z.infer<typeof projectSchema>
+export type VoteInput = z.infer<typeof voteSchema>
+export type MarketTestInput = z.infer<typeof marketTestSchema>
+export type CampaignAcceptanceInput = z.infer<typeof campaignAcceptanceSchema>
