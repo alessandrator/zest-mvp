@@ -163,6 +163,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 3. **Role-Based Redirects**: Users redirected to appropriate dashboard
 4. **Row Level Security**: Database-level permission enforcement
 
+### Password Requirements
+
+For security, all user passwords must meet the following criteria:
+- **Minimum 8 characters**
+- **At least one uppercase letter (A-Z)**
+- **At least one number (0-9)**
+
+These requirements are enforced both on the frontend (immediate feedback) and backend (API validation) using Zod schemas.
+
 ## 📊 Database Schema
 
 ### Core Tables
