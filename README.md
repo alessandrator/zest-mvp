@@ -46,6 +46,7 @@ Connect brands with students and influencers through innovative digital marketin
 │   ├── campaigns/         # Public campaigns page
 │   ├── dashboard/         # Protected dashboard pages
 │   ├── login/            # Authentication pages
+│   ├── signup/           # User registration with enhanced password validation
 │   ├── request-access/   # Access request form
 │   └── layout.tsx        # Root layout with fonts & providers
 ├── components/
@@ -158,10 +159,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🔐 Authentication Flow
 
-1. **Public Access**: Home, campaigns, request access pages
-2. **Authentication Required**: Dashboard and management pages
-3. **Role-Based Redirects**: Users redirected to appropriate dashboard
-4. **Row Level Security**: Database-level permission enforcement
+1. **Public Access**: Home, campaigns, signup, and request access pages
+2. **User Registration**: Enhanced signup form with password validation (8+ chars, uppercase, number)
+3. **Authentication Required**: Dashboard and management pages
+4. **Role-Based Redirects**: Users redirected to appropriate dashboard
+5. **Row Level Security**: Database-level permission enforcement
 
 ## 📊 Database Schema
 
@@ -179,6 +181,58 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Row Level Security (RLS) policies
 - Proper foreign key relationships
 - Performance indexes
+
+## 🧪 Testing the Application
+
+### Testing Signup Form and Authentication
+
+#### Local Testing
+1. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+2. Navigate to [http://localhost:3000/signup](http://localhost:3000/signup)
+
+3. **Test Password Validation**:
+   - Try password "password" → Should show "Password must contain at least one number"
+   - Try password "password123" → Should show "Password must contain at least one uppercase letter"  
+   - Try password "Password123" → Should pass validation
+
+4. **Test Role-based Fields**:
+   - Select "Student", "Influencer", or "Consumer" → Company field should be hidden
+   - Select "Brand" or "School Admin" → Company field should appear
+
+5. **Test Form Submission**:
+   - With valid data, form will attempt to call Supabase (may show "Supabase not configured" if not set up)
+   - With invalid data, clear validation errors should display
+
+#### Features to Test
+- ✅ Password validation (8+ chars, uppercase, number)
+- ✅ Real-time validation feedback with specific error messages
+- ✅ Role-based conditional fields (company field for brands/school admins)
+- ✅ Form navigation and user experience
+- ✅ Integration with existing login flow
+
+### Vercel Preview Testing
+1. Push changes to a feature branch
+2. Create pull request → Vercel will automatically create preview deployment
+3. Test signup form on preview URL: `https://your-preview-url.vercel.app/signup`
+4. Verify all validation works in production environment
+
+### Database Integration Testing
+To test with actual Supabase:
+1. Set up environment variables with real Supabase credentials
+2. Ensure database tables exist (run `db/schema.sql`)
+3. Test complete signup flow including user creation and profile insertion
+
+### Screenshots
+The following screenshots demonstrate the enhanced signup functionality:
+
+- **Initial Signup Form**: `docs/screenshots/signup-form-initial.png`
+- **Password Validation**: `docs/screenshots/signup-form-validation-working.png`
+- **Role-based Company Field**: `docs/screenshots/signup-form-brand-company-field.png`
+- **Updated Login Page**: `docs/screenshots/login-page-with-signup-links.png`
 
 ## 🚀 Deployment
 
