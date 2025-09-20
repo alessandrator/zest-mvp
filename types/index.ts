@@ -24,6 +24,7 @@ export interface UserProfile {
   phone?: string | null;
   company?: string | null;
   school_id?: string | null;
+  brand_id?: string | null;
   bio?: string | null;
   website?: string | null;
   social_links?: Record<string, unknown> | null;
