@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -10,10 +11,13 @@ import { LoadingSpinner } from '@/components/ui/loading'
 import { requestAccessSchema } from '@/lib/validations'
 import { UserRole } from '@/types'
 import { toast } from 'sonner'
+import { ZodError } from 'zod'
 
 export default function RequestAccessPage() {
   const [formData, setFormData] = useState({
     email: '',
+    password: '',
+    confirmPassword: '',
     role: 'student' as UserRole,
     first_name: '',
     last_name: '',
@@ -22,6 +26,27 @@ export default function RequestAccessPage() {
   })
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
+  const router = useRouter()
+
+  const validatePassword = (password: string) => {
+    const errors: string[] = []
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters')
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter')
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push('Password must contain at least one number')
+    }
+    return errors
+  }
+
+  const handlePasswordChange = (password: string) => {
+    setFormData({ ...formData, password })
+    setPasswordErrors(validatePassword(password))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,13 +68,20 @@ export default function RequestAccessPage() {
       const result = await response.json()
 
       if (response.ok) {
-        toast.success(result.message || 'Access request submitted successfully!')
+        toast.success(result.message || 'Account created successfully! Please check your email to verify your account.')
         setSubmitted(true)
+        // Redirect to login after success
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
       } else {
-        toast.error(result.error || 'Failed to submit access request')
+        toast.error(result.error || 'Failed to create account')
       }
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof ZodError) {
+        const messages = error.issues.map(issue => issue.message)
+        toast.error(messages.join(', '))
+      } else if (error instanceof Error) {
         toast.error(error.message)
       } else {
         toast.error('Please check your input and try again')
@@ -74,18 +106,18 @@ export default function RequestAccessPage() {
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Request Submitted! 🎉</CardTitle>
+              <CardTitle className="text-2xl">Account Created! 🎉</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-gray-600">
-                Thank you for your interest in joining ZEST! We&apos;ve received your access request and will review it shortly.
+                Thank you for joining ZEST! Your account has been created successfully.
               </p>
               <p className="text-sm text-gray-500">
-                You&apos;ll receive an email confirmation within 24-48 hours with next steps.
+                You&apos;ll receive an email confirmation shortly. Please verify your email to complete the setup.
               </p>
               <div className="pt-4">
                 <Button asChild>
-                  <Link href="/">Return to Home</Link>
+                  <Link href="/login">Sign In to Your Account</Link>
                 </Button>
               </div>
             </CardContent>
@@ -106,7 +138,7 @@ export default function RequestAccessPage() {
         </Link>
         
         <h2 className="text-center text-3xl font-display font-bold text-dark">
-          Request Access
+          Create Your Account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Join our community of brands, students, and creators
@@ -174,6 +206,62 @@ export default function RequestAccessPage() {
               </div>
 
               <div>
+                <label htmlFor="password" className="block text-sm font-medium text-dark">
+                  Password
+                </label>
+                <div className="mt-1">
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
+                    placeholder="Enter a strong password"
+                  />
+                </div>
+                {passwordErrors.length > 0 && (
+                  <div className="mt-2">
+                    {passwordErrors.map((error, index) => (
+                      <p key={index} className="text-sm text-red-600">
+                        • {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-2 text-sm text-gray-600">
+                  <p>Password requirements:</p>
+                  <ul className="list-disc list-inside text-xs mt-1">
+                    <li>At least 8 characters</li>
+                    <li>At least one uppercase letter</li>
+                    <li>At least one number</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-dark">
+                  Confirm Password
+                </label>
+                <div className="mt-1">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    placeholder="Confirm your password"
+                  />
+                </div>
+                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">
+                    Passwords don&apos;t match
+                  </p>
+                )}
+              </div>
+
+              <div>
                 <label htmlFor="role" className="block text-sm font-medium text-dark">
                   I am a
                 </label>
@@ -238,10 +326,10 @@ export default function RequestAccessPage() {
                   {loading ? (
                     <>
                       <LoadingSpinner size="sm" className="mr-2" />
-                      Submitting...
+                      Creating Account...
                     </>
                   ) : (
-                    'Submit Request'
+                    'Create Account'
                   )}
                 </Button>
               </div>
