@@ -10,6 +10,7 @@ interface AccessRequestData {
   last_name: string;
   company: string | null;
   message: string;
+  password: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -20,7 +21,67 @@ export async function POST(request: NextRequest) {
     // Validate the request data
     const validatedData = requestAccessSchema.parse(body)
 
-    // Insert the access request into Supabase
+    // Create user with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: validatedData.email,
+      password: validatedData.password,
+    })
+
+    if (authError) {
+      console.error('Supabase auth error:', authError)
+      
+      // Handle specific auth errors
+      if (authError.message.includes('already registered')) {
+        return NextResponse.json(
+          { error: 'An account with this email already exists. Please sign in instead.' },
+          { status: 409 }
+        )
+      }
+      
+      return NextResponse.json(
+        { error: authError.message || 'Failed to create account. Please try again.' },
+        { status: 400 }
+      )
+    }
+
+    if (!authData.user) {
+      return NextResponse.json(
+        { error: 'Failed to create user account' },
+        { status: 500 }
+      )
+    }
+
+    // Create user profile
+    const userProfile = {
+      user_id: authData.user.id,
+      role: validatedData.role,
+      first_name: validatedData.first_name,
+      last_name: validatedData.last_name,
+      company: validatedData.company || null,
+      verified: false,
+      active: true,
+    }
+
+    const { data: profileData, error: profileError } = await supabase
+      .from('user_profiles')
+      .insert([userProfile])
+      .select()
+      .single()
+
+    if (profileError) {
+      console.error('Profile creation error:', profileError)
+      
+      // If profile creation fails, we should clean up the auth user
+      // Note: In a real app, you might want to handle this in a transaction
+      await supabase.auth.admin.deleteUser(authData.user.id)
+      
+      return NextResponse.json(
+        { error: 'Failed to create user profile. Please try again.' },
+        { status: 500 }
+      )
+    }
+
+    // Also store the access request for admin tracking
     const accessRequest: AccessRequestData = {
       email: validatedData.email,
       role: validatedData.role,
@@ -28,37 +89,30 @@ export async function POST(request: NextRequest) {
       last_name: validatedData.last_name,
       company: validatedData.company || null,
       message: validatedData.message,
+      password: '[REDACTED]', // Don't store the actual password
     }
 
-    // Note: This will work once the access_requests table is created in Supabase
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
-      .from('access_requests')
-      .insert([accessRequest])
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Supabase error:', error)
-      
-      // Check for unique constraint violation (duplicate email)
-      if (error.code === '23505') {
-        return NextResponse.json(
-          { error: 'An access request with this email already exists. Please contact support if you need assistance.' },
-          { status: 409 }
-        )
-      }
-      
-      return NextResponse.json(
-        { error: 'Failed to submit access request. Please try again.' },
-        { status: 500 }
-      )
+    // Store access request (optional, for admin tracking)
+    // This will fail silently if the table doesn't exist yet
+    try {
+      await supabase
+        .from('access_requests')
+        .insert([{
+          ...accessRequest,
+          user_id: authData.user.id,
+          status: 'approved', // Auto-approve since we're creating the account
+        }])
+    } catch (error) {
+      console.log('Access request table not yet created, skipping insert:', error)
     }
 
     return NextResponse.json(
       { 
-        message: 'Access request submitted successfully!',
-        data: data
+        message: 'Account created successfully! Please check your email to verify your account.',
+        data: {
+          user: authData.user,
+          profile: profileData
+        }
       },
       { status: 201 }
     )
