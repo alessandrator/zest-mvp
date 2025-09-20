@@ -22,6 +22,9 @@ export default async function UserDashboard() {
   if (user.role === 'school_admin') {
     redirect('/dashboard/school')
   }
+  if (['student', 'influencer'].includes(user.role)) {
+    redirect('/dashboard/student')
+  }
 
   /* 
    * ZEST User Dashboard

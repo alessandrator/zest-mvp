@@ -33,6 +33,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     phone: string | null
     company: string | null
     school_id: string | null
+    brand_id: string | null
     bio: string | null
     website: string | null
     social_links: Record<string, unknown> | null
@@ -54,6 +55,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
       phone: profile.phone,
       company: profile.company,
       school_id: profile.school_id,
+      brand_id: profile.brand_id,
       bio: profile.bio,
       website: profile.website,
       social_links: profile.social_links,
