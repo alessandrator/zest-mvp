@@ -1,9 +1,10 @@
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/layouts/navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, canApplyToCampaigns } from '@/lib/auth'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import Image from 'next/image'
 
 // Mock data for demonstration
 const mockCampaigns = [
@@ -15,6 +16,7 @@ const mockCampaigns = [
     budget_max: 2000,
     target_audience: ['students', 'young professionals', 'productivity enthusiasts'],
     deadline: '2024-10-15',
+    image_url: '/images/shoes/sneaker-1.svg',
     brand: {
       name: 'TechFlow Solutions',
       logo_url: null,
@@ -28,6 +30,7 @@ const mockCampaigns = [
     budget_max: 1500,
     target_audience: ['college students', 'environmental advocates', 'sustainability enthusiasts'],
     deadline: '2024-11-01',
+    image_url: '/images/shoes/sneaker-2.svg',
     brand: {
       name: 'EcoLife Brands',
       logo_url: null,
@@ -41,6 +44,7 @@ const mockCampaigns = [
     budget_max: 2500,
     target_audience: ['international students', 'study abroad alumni', 'university students'],
     deadline: '2024-10-30',
+    image_url: '/images/shoes/sneaker-3.svg',
     brand: {
       name: 'Global Education Partners',
       logo_url: null,
@@ -50,6 +54,16 @@ const mockCampaigns = [
 
 export default async function CampaignsPage() {
   const user = await getCurrentUser()
+  
+  // Require authentication and proper role
+  if (!user) {
+    redirect('/login')
+  }
+  
+  // Only allow students, influencers, consumers, school admins, and super admins
+  if (!canApplyToCampaigns(user) && user.role !== 'school_admin' && user.role !== 'super_admin') {
+    redirect('/dashboard')
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -58,9 +72,14 @@ export default async function CampaignsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-dark mb-2">
-            Active Campaigns
-          </h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl font-display font-bold text-dark">
+              Active Campaigns
+            </h1>
+            <span className="bg-primary/20 text-primary text-sm px-3 py-1 rounded-full font-medium">
+              Private Dashboard
+            </span>
+          </div>
           <p className="text-gray-600">
             Discover exciting collaboration opportunities with top brands
           </p>
@@ -79,6 +98,16 @@ export default async function CampaignsPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {mockCampaigns.map((campaign) => (
             <Card key={campaign.id} className="hover:shadow-lg transition-shadow duration-200">
+              {/* Campaign Image */}
+              <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                <Image
+                  src={campaign.image_url}
+                  alt={`${campaign.title} - Campaign Visual`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -138,15 +167,9 @@ export default async function CampaignsPage() {
                 </div>
                 
                 <div className="pt-2">
-                  {user ? (
-                    <Button className="w-full" size="sm">
-                      Apply Now
-                    </Button>
-                  ) : (
-                    <Button className="w-full" size="sm" asChild>
-                      <Link href="/login">Sign in to Apply</Link>
-                    </Button>
-                  )}
+                  <Button className="w-full" size="sm">
+                    Apply Now
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -162,26 +185,6 @@ export default async function CampaignsPage() {
             <p className="text-gray-600">
               Check back soon for new opportunities!
             </p>
-          </div>
-        )}
-
-        {/* Call to Action */}
-        {!user && (
-          <div className="mt-12 text-center bg-gray-50 rounded-lg p-8">
-            <h3 className="text-xl font-display font-semibold text-dark mb-2">
-              Ready to Start Creating?
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Join ZEST to apply for campaigns and start collaborating with amazing brands.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild>
-                <Link href="/request-access">Join as Creator</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/login">Sign In</Link>
-              </Button>
-            </div>
           </div>
         )}
       </div>
