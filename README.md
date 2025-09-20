@@ -5,11 +5,17 @@ Connect brands with students and influencers through innovative digital marketin
 ## 🚀 Features
 
 - **Multi-Role Authentication**: Support for super admins, brands, school admins, students, consumers, and influencers
-- **Campaign Management**: Brands can create and manage marketing campaigns
+- **Campaign Management**: Brands can create and manage marketing campaigns with approval workflows
+- **Project Submission System**: Students and creators can submit projects for campaigns with file uploads
+- **Voting System**: Users can vote and rate projects and campaigns with 1-5 star ratings
+- **Market Test Management**: Brands can create market research tests with approval workflows
+- **Campaign Acceptance Workflow**: Students/creators can browse and accept campaigns
+- **File Upload System**: Secure file uploads with 10MB limits and storage bucket organization
 - **Application System**: Creators can apply to campaigns with portfolios and proposals
 - **Access Request System**: New users can request access with approval workflow
 - **Password Reset**: Secure forgot password functionality with email verification
 - **Role-Based Access Control (RBAC)**: Secure access control based on user roles
+- **Super Admin Dashboard**: Centralized approval interface for projects and market tests
 - **Responsive Design**: Modern, mobile-first design with TailwindCSS
 - **Type Safety**: Full TypeScript implementation with Zod validation
 - **Real-time Updates**: Built on Supabase for real-time data synchronization
@@ -130,31 +136,44 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Super Admin
 - Full system access
+- Approve/reject projects and market tests
 - Manage all users, brands, and schools
 - View all campaigns and applications
+- Access comprehensive analytics dashboard
 
 ### Brand
-- Create and manage campaigns
+- Create and manage campaigns (max 10 per brand)
+- Monitor project submissions and approvals
+- Create market research tests
 - Review applications from creators
-- View campaign analytics
+- View campaign analytics and performance
+- Approve/reject creator projects
 
 ### School Admin  
-- Manage school information
-- View student activities (future feature)
+- Manage school information and students
+- Create educational campaigns and market tests
+- View student activities and projects
+- Monitor school-specific analytics
 
 ### Student
-- Browse and apply to campaigns
-- Create portfolio content
-- Track application status
+- Browse and accept public campaigns
+- Submit projects with file uploads (max 10MB)
+- Vote on other projects and campaigns
+- Track project approval status and feedback
+- Manage personal portfolio and submissions
 
 ### Influencer
-- Apply to campaigns with larger reach
-- Manage extensive portfolios
-- Premium campaign access
+- Apply to campaigns with larger reach requirements
+- Submit professional-grade projects
+- Access premium campaign opportunities
+- Manage extensive portfolios and analytics
+- Vote and rate community content
 
 ### Consumer
-- Participate in consumer-focused campaigns
+- Participate in consumer-focused campaigns and market tests
 - Provide product feedback and reviews
+- Vote on projects and campaign content
+- Access consumer research opportunities
 
 ## 🔐 Authentication Flow
 
@@ -162,6 +181,30 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 2. **Authentication Required**: Dashboard and management pages
 3. **Role-Based Redirects**: Users redirected to appropriate dashboard
 4. **Row Level Security**: Database-level permission enforcement
+
+### User Workflows
+
+#### Brand/School Workflow
+1. Create campaigns with detailed briefs and requirements
+2. Set budget ranges and target audiences
+3. Monitor campaign applications and acceptances
+4. Review and approve submitted projects
+5. Create market research tests for user feedback
+
+#### Student/Creator Workflow  
+1. Browse available public campaigns
+2. Accept campaigns of interest
+3. Submit projects with files and descriptions
+4. Track approval status and feedback
+5. Vote and rate other community projects
+6. Build portfolio and reputation
+
+#### Super Admin Workflow
+1. Monitor all platform activity from centralized dashboard
+2. Approve/reject submitted projects for quality control
+3. Activate market tests and campaigns
+4. Manage user access and permissions
+5. View comprehensive platform analytics
 
 ### Password Requirements
 
@@ -175,19 +218,33 @@ These requirements are enforced both on the frontend (immediate feedback) and ba
 ## 📊 Database Schema
 
 ### Core Tables
-- `user_profiles` - Extended user information with roles
+- `user_profiles` - Extended user information with roles and brand/school associations
 - `schools` - Educational institutions  
 - `brands` - Company/brand information
-- `campaigns` - Marketing campaigns
-- `campaign_applications` - Creator applications
-- `notifications` - User notifications
+- `campaigns` - Marketing campaigns with approval workflows
+- `campaign_applications` - Creator applications to campaigns
+- `campaign_acceptances` - Tracking which users accepted campaigns
+- `projects` - Student/creator project submissions with file storage
+- `votes` - Rating system for projects and campaigns (1-5 stars)
+- `market_tests` - Market research tests with questions and responses
+- `notifications` - User notifications and alerts
+
+### New Functionality
+- **Project Management**: Complete project lifecycle from creation to approval
+- **Voting System**: 5-star rating system with optional comments
+- **Market Research**: Structured tests with multiple question types
+- **File Storage**: Secure file uploads organized by user and project
+- **Campaign Limits**: Automatic enforcement of 10 campaign limit per brand
+- **Approval Workflows**: Multi-stage approval process for content quality
 
 ### Key Features
 - UUID primary keys
-- Automatic timestamps
-- Row Level Security (RLS) policies
-- Proper foreign key relationships
-- Performance indexes
+- Automatic timestamps with triggers
+- Row Level Security (RLS) policies for data access control
+- Proper foreign key relationships and constraints
+- Performance indexes for common queries
+- File size limits and type validation
+- Campaign participation tracking
 
 ## 🚀 Deployment
 
