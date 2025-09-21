@@ -33,9 +33,30 @@ Execute the SQL scripts in order:
 
 This will create:
 - All core tables (users, brands, schools, campaigns, etc.)
+- The `user_profiles` table for user profile data
 - The new `access_requests` table for form submissions
 - Row Level Security (RLS) policies
 - Required indexes and triggers
+
+### 3. Troubleshooting Registration Issues
+
+If you encounter the error "Could not find the table 'public.user_profiles' in the schema cache" during user registration:
+
+1. **Check if user_profiles table exists**: In your Supabase SQL editor, run:
+   ```sql
+   SELECT table_name FROM information_schema.tables 
+   WHERE table_schema = 'public' AND table_name = 'user_profiles';
+   ```
+
+2. **If the table doesn't exist or has issues**: Run the migration script:
+   ```sql
+   -- Run the contents of /db/migrations/001_create_user_profiles_table.sql
+   ```
+
+3. **Verify the table was created**: Check that the table exists and has the correct structure:
+   ```sql
+   \d user_profiles
+   ```
 
 ### 3. Enable Row Level Security
 
