@@ -29,6 +29,7 @@ export interface UserProfile {
   website?: string | null;
   social_links?: Record<string, unknown> | null;
   verified: boolean;
+  active: boolean;
   created_at: string;
   updated_at: string;
 }

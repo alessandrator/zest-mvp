@@ -22,10 +22,11 @@ export default function SignUpPage() {
     company: '',
   })
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
-const [passwordErrors, setPasswordErrors] = useState<string[]>([])
-const router = useRouter()
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string) => {
   setFormData({ ...formData, [field]: value })
   // Clear validation error when user starts typing
   if (validationErrors[field]) {
@@ -33,7 +34,7 @@ const handleInputChange = (field: string, value: string) => {
   }
 }
 
-const validatePassword = (password: string) => {
+  const validatePassword = (password: string) => {
   const errors: string[] = []
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters')
@@ -45,12 +46,11 @@ const validatePassword = (password: string) => {
     errors.push('Password must contain at least one number')
   }
   return errors
-}
+  }
 
-const handlePasswordChange = (password: string) => {
-  setFormData({ ...formData, password })
-  setPasswordErrors(validatePassword(password))
-}
+  const handlePasswordChange = (password: string) => {
+    setFormData({ ...formData, password })
+    setPasswordErrors(validatePassword(password))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,9 +64,7 @@ const handlePasswordChange = (password: string) => {
       // Validate input
       const validatedData = signUpSchema.parse(formData)
       
- copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
       // Send signup request to API
-
       const response = await fetch('/api/signup', {
         method: 'POST',
         headers: {
@@ -85,20 +83,18 @@ const handlePasswordChange = (password: string) => {
       }
     } catch (error) {
       if (error instanceof ZodError) {
-if (error instanceof ZodError) {
-  // Handle validation errors
-  const errors: Record<string, string> = {}
-  error.issues.forEach((issue) => {
-    const path = issue.path[0] as string
-    errors[path] = issue.message
-  })
-  setValidationErrors(errors)
-  toast.error('Please fix the validation errors')
-} else if (error instanceof Error) {
-  toast.error(error.message)
-} else {
-  toast.error('Failed to create account. Please try again.')
-}
+        // Handle validation errors
+        const errors: Record<string, string> = {}
+        error.issues.forEach((issue) => {
+          const path = issue.path[0] as string
+          errors[path] = issue.message
+        })
+        setValidationErrors(errors)
+        toast.error('Please fix the validation errors')
+      } else if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error('Failed to create account. Please try again.')
       }
     } finally {
       setLoading(false)
@@ -110,11 +106,9 @@ if (error instanceof ZodError) {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center items-center space-x-2 mb-8">
           <div className="bg-primary rounded-lg p-2">
- copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
             <span className="text-dark font-display font-bold text-xl">Z</span>
           </div>
           <span className="font-display font-bold text-2xl text-dark">ZEST</span>
-
         </Link>
         
         <h2 className="text-center text-3xl font-display font-bold text-dark">
@@ -138,9 +132,7 @@ if (error instanceof ZodError) {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <Card>
           <CardHeader>
-copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
             <CardTitle>Sign up for ZEST</CardTitle>
-
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -154,14 +146,14 @@ copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
                       id="first_name"
                       name="first_name"
                       type="text"
-value={formData.first_name}
-onChange={(e) => handleInputChange('first_name', e.target.value)}
-placeholder="First name"
-className={validationErrors.first_name ? 'border-red-500' : ''}
-/>
-{validationErrors.first_name && (
-  <p className="mt-1 text-sm text-red-600">{validationErrors.first_name}</p>
-)}
+                      value={formData.first_name}
+                      onChange={(e) => handleInputChange('first_name', e.target.value)}
+                      placeholder="First name"
+                      className={validationErrors.first_name ? 'border-red-500' : ''}
+                    />
+                    {validationErrors.first_name && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.first_name}</p>
+                    )}
                   </div>
                 </div>
 
@@ -198,11 +190,10 @@ className={validationErrors.last_name ? 'border-red-500' : ''}
                     autoComplete="email"
                     required
                     value={formData.email}
-value={formData.email}
-onChange={(e) => handleInputChange('email', e.target.value)}
-placeholder="Enter your email"
-className={validationErrors.email ? 'border-red-500' : ''}
-  />
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="Enter your email"
+                    className={validationErrors.email ? 'border-red-500' : ''}
+                  />
 {validationErrors.email && (
   <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
 )}
@@ -221,14 +212,13 @@ className={validationErrors.email ? 'border-red-500' : ''}
                     autoComplete="new-password"
                     required
                     value={formData.password}
-value={formData.password}
-onChange={(e) => {
-  handleInputChange('password', e.target.value)
-  handlePasswordChange(e.target.value)
-}}
-placeholder="Enter your password"
-className={validationErrors.password ? 'border-red-500' : ''}
-/>
+                    onChange={(e) => {
+                      handleInputChange('password', e.target.value)
+                      handlePasswordChange(e.target.value)
+                    }}
+                    placeholder="Enter your password"
+                    className={validationErrors.password ? 'border-red-500' : ''}
+                  />
 {validationErrors.password && (
   <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
 )}
@@ -254,9 +244,7 @@ className={validationErrors.password ? 'border-red-500' : ''}
 
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-dark">
- copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
                   I am a...
-
                 </label>
                 <div className="mt-1">
                   <select
@@ -293,7 +281,7 @@ className={validationErrors.password ? 'border-red-500' : ''}
         type="text"
         autoComplete="organization"
         value={formData.company}
-        onChange={(e) => handleInputChange('company', e.target.value)} {/* oppure setFormData se usi quello */}
+        onChange={(e) => handleInputChange('company', e.target.value)}
         placeholder="Your company or organization"
         className={validationErrors.company ? 'border-red-500' : ''}
       />
