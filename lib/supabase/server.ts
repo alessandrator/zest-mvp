@@ -21,6 +21,7 @@ export function createClient() {
       }),
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+
         signUp: () => Promise.resolve({ 
           data: { user: null }, 
           error: { 
@@ -31,6 +32,7 @@ export function createClient() {
         admin: {
           deleteUser: () => Promise.resolve({ data: null, error: null })
         }
+
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any

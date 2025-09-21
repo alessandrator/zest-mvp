@@ -11,7 +11,8 @@ export function createClient() {
     return {
       auth: {
         signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-        resetPasswordForEmail: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+        resetPasswordForEmail: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        signUp: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } })
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any

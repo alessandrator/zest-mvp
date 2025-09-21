@@ -64,7 +64,14 @@ export default function LoginPage() {
           Sign in to your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
+          Don&apos;t have an account?{' '}
+          <Link
+            href="/signup"
+            className="font-medium text-primary hover:text-primary-600"
+          >
+            Sign up
+          </Link>
+          {' '}or{' '}
           <Link
             href="/request-access"
             className="font-medium text-primary hover:text-primary-600"
@@ -165,8 +172,8 @@ export default function LoginPage() {
               </Link>
             </Button>
             <Button variant="outline" className="w-full" asChild>
-              <Link href="/request-access">
-                Request Access
+              <Link href="/signup">
+                Sign up
               </Link>
             </Button>
           </div>
