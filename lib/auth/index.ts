@@ -26,6 +26,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   const profile = profileData as {
     id: string
     user_id: string
+    email?: string
     role: UserRole
     first_name: string
     last_name: string
@@ -50,6 +51,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     profile: {
       id: profile.id,
       user_id: profile.user_id,
+      email: profile.email || user.email!,
       first_name: profile.first_name,
       last_name: profile.last_name,
       avatar_url: profile.avatar_url,

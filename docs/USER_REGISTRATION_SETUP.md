@@ -6,15 +6,18 @@ Before using the updated registration system, run the migration to ensure your d
 
 ```sql
 -- Run this in your Supabase SQL editor or psql
-\i db/migrations/001_ensure_user_profiles_active_column.sql
+\i db/migrations/001_ensure_user_profiles_columns.sql
 ```
 
 ### What the Migration Does
 
 1. **Adds `active` column** if missing from `user_profiles` table (default: `true`)
-2. **Ensures `role` column** is properly constrained as NOT NULL
-3. **Updates existing records** to have `active = true` if they were NULL
-4. **Safe to run multiple times** - uses conditional checks
+2. **Adds `company` column** if missing from `user_profiles` table
+3. **Adds `verified` column** if missing from `user_profiles` table (default: `false`)
+4. **Adds `email` column** if missing from `user_profiles` table (NOT NULL, required)
+5. **Ensures `role` column** is properly constrained as NOT NULL
+6. **Updates existing records** to have proper default values
+7. **Safe to run multiple times** - uses conditional checks
 
 ## Registration Flow Features
 
@@ -84,7 +87,9 @@ SELECT
   up.verified,
   up.first_name,
   up.last_name,
-  au.email
+  up.email,
+  up.company,
+  au.email as auth_email
 FROM user_profiles up
 JOIN auth.users au ON up.user_id = au.id
 ORDER BY up.created_at DESC
@@ -107,19 +112,23 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 1. **Create project** in Supabase dashboard
 2. **Run the schema**: Copy content from `db/schema.sql` to SQL editor
-3. **Run the migration**: Copy content from `db/migrations/001_ensure_user_profiles_active_column.sql`
+3. **Run the migration**: Copy content from `db/migrations/001_ensure_user_profiles_columns.sql`
 4. **Set up RLS policies**: Copy content from `db/policies.sql`
 
 ## Troubleshooting
 
 ### Common Issues
 
-**Error: "column 'active' does not exist"**
-- Solution: Run the migration `db/migrations/001_ensure_user_profiles_active_column.sql`
+**Error: "column 'active' does not exist"** or **"column 'company' does not exist"** or **"column 'verified' does not exist"**
+- Solution: Run the migration `db/migrations/001_ensure_user_profiles_columns.sql`
 
 **Error: "role cannot be null"**  
 - Solution: Check that the signup form is passing the role correctly
 - Verify the migration has run to make role NOT NULL
+
+**Error: "email cannot be null"**
+- Solution: Ensure the migration has run to add the email column
+- Check that the signup API is passing the email field to user_profiles
 
 **User created but no profile record**
 - Solution: Check Supabase service role key is correct

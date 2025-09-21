@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
     // Create user profile in our database
     const userProfile = {
       user_id: authData.user.id,
+      email: validatedData.email,
       role: validatedData.role,
       first_name: validatedData.first_name,
       last_name: validatedData.last_name,
