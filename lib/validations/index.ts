@@ -84,11 +84,19 @@ export const brandSchema = z.object({
 // Request Access Schema
 export const requestAccessSchema = z.object({
   email: z.string().email('Invalid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
   role: z.enum(['brand', 'school_admin', 'student', 'consumer', 'influencer']),
   first_name: z.string().min(1, 'First name is required').max(100),
   last_name: z.string().min(1, 'Last name is required').max(100),
   company: z.string().max(255).optional(),
   message: z.string().min(1, 'Message is required').max(500),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 })
 
 // File Upload Schema
@@ -100,6 +108,51 @@ export const fileUploadSchema = z.object({
     (file) => ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(file.type),
     'File must be an image (JPEG, PNG, WebP) or PDF'
   ),
+})
+
+// Project Schema
+export const projectSchema = z.object({
+  campaign_id: z.string().uuid('Invalid campaign ID'),
+  title: z.string().min(1, 'Title is required').max(255),
+  description: z.string().min(1, 'Description is required').max(2000),
+  file_urls: z.array(z.string().url()).default([]),
+  image_urls: z.array(z.string().url()).default([]),
+})
+
+// Vote Schema
+export const voteSchema = z.object({
+  project_id: z.string().uuid().optional(),
+  campaign_id: z.string().uuid().optional(),
+  value: z.number().int().min(1).max(5),
+  comment: z.string().max(500).optional(),
+}).refine(
+  (data) => Boolean(data.project_id) !== Boolean(data.campaign_id),
+  {
+    message: 'Vote must target either a project or campaign, not both',
+    path: ['project_id'],
+  }
+)
+
+// Market Test Schema
+export const marketTestSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(255),
+  description: z.string().min(1, 'Description is required').max(2000),
+  questions: z.array(z.object({
+    id: z.string(),
+    type: z.enum(['text', 'multiple_choice', 'rating', 'yes_no']),
+    question: z.string().min(1, 'Question is required'),
+    options: z.array(z.string()).optional(),
+    required: z.boolean().default(true),
+  })).min(1, 'At least one question is required'),
+  target_audience: z.array(z.string()).default([]),
+  max_responses: z.number().int().min(1).max(1000).default(100),
+  expires_at: z.string().optional(),
+  school_id: z.string().uuid().optional(),
+})
+
+// Campaign Acceptance Schema  
+export const campaignAcceptanceSchema = z.object({
+  campaign_id: z.string().uuid('Invalid campaign ID'),
 })
 
 // Common validation helpers
@@ -118,3 +171,7 @@ export type SchoolInput = z.infer<typeof schoolSchema>
 export type BrandInput = z.infer<typeof brandSchema>
 export type RequestAccessInput = z.infer<typeof requestAccessSchema>
 export type FileUploadInput = z.infer<typeof fileUploadSchema>
+export type ProjectInput = z.infer<typeof projectSchema>
+export type VoteInput = z.infer<typeof voteSchema>
+export type MarketTestInput = z.infer<typeof marketTestSchema>
+export type CampaignAcceptanceInput = z.infer<typeof campaignAcceptanceSchema>

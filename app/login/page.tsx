@@ -165,7 +165,12 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 space-y-3">
+            <Button className="w-full" asChild>
+              <Link href="/signup">
+                Create Account
+              </Link>
+            </Button>
             <Button variant="outline" className="w-full" asChild>
               <Link href="/signup">
                 Sign up

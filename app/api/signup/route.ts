@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: validatedData.email,
       password: validatedData.password,
+ copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
       options: {
         data: {
           first_name: validatedData.first_name,
@@ -23,10 +24,12 @@ export async function POST(request: NextRequest) {
           company: validatedData.company || null,
         }
       }
+    
     })
 
     if (authError) {
-      console.error('Auth error:', authError)
+      console.error('Supabase auth error:', authError)
+ main
       
       // Handle specific auth errors
       if (authError.message.includes('already registered')) {
@@ -37,7 +40,9 @@ export async function POST(request: NextRequest) {
       }
       
       return NextResponse.json(
+copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
         { error: authError.message },
+
         { status: 400 }
       )
     }
@@ -49,7 +54,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+ copilot/fix-2637d606-e541-44f8-8693-b96932aafabd
     // Create user profile in our database
+
     const userProfile = {
       user_id: authData.user.id,
       role: validatedData.role,
@@ -58,6 +65,9 @@ export async function POST(request: NextRequest) {
       company: validatedData.company || null,
       school_id: validatedData.school_id || null,
       brand_id: validatedData.brand_id || null,
+      verified: false,
+      active: true,
+
     }
 
     const { data: profileData, error: profileError } = await supabase
@@ -71,6 +81,10 @@ export async function POST(request: NextRequest) {
       
       // Note: In a production app, you might want to use database transactions
       // or implement a cleanup job to remove orphaned auth users
+      // If profile creation fails, we should clean up the auth user
+      // Note: In a real app, you might want to handle this in a transaction
+      await supabase.auth.admin.deleteUser(authData.user.id)
+
       
       return NextResponse.json(
         { error: 'Failed to create user profile. Please try again.' },
@@ -81,9 +95,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         message: 'Account created successfully! Please check your email to verify your account.',
+
         user: {
           id: authData.user.id,
           email: authData.user.email,
+
           profile: profileData
         }
       },

@@ -1,0 +1,16 @@
+<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sneaker2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Sneaker sole -->
+  <ellipse cx="100" cy="100" rx="85" ry="15" fill="#374151"/>
+  <!-- Main shoe body -->
+  <path d="M15 85 C15 75, 25 65, 45 65 L145 65 C165 65, 175 75, 175 85 L175 95 C175 100, 170 105, 165 105 L25 105 C20 105, 15 100, 15 95 Z" fill="url(#sneaker2)"/>
+  <!-- Shoe stripe -->
+  <path d="M45 75 L145 75 C150 75, 155 78, 155 82 C155 86, 150 89, 145 89 L45 89 C40 89, 35 86, 35 82 C35 78, 40 75, 45 75 Z" fill="#FFFFFF" opacity="0.4"/>
+  <!-- Heel -->
+  <rect x="155" y="75" width="15" height="20" rx="5" fill="#1F2937"/>
+</svg>

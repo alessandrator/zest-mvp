@@ -21,7 +21,18 @@ export function createClient() {
       }),
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-        signUp: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } })
+
+        signUp: () => Promise.resolve({ 
+          data: { user: null }, 
+          error: { 
+            message: 'Supabase not configured - please check environment variables',
+            status: 503
+          } 
+        }),
+        admin: {
+          deleteUser: () => Promise.resolve({ data: null, error: null })
+        }
+
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any

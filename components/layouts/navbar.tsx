@@ -23,12 +23,6 @@ export function Navbar({ user }: NavbarProps) {
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
             <Link 
-              href="/campaigns" 
-              className="text-dark hover:text-primary transition-colors"
-            >
-              Campaigns
-            </Link>
-            <Link 
               href="/about" 
               className="text-dark hover:text-primary transition-colors"
             >
@@ -63,12 +57,6 @@ export function Navbar({ user }: NavbarProps) {
       {/* Mobile Navigation */}
       <div className="md:hidden border-t border-gray-light/20">
         <div className="px-2 pt-2 pb-3 space-y-1">
-          <Link
-            href="/campaigns"
-            className="block px-3 py-2 text-dark hover:text-primary transition-colors"
-          >
-            Campaigns
-          </Link>
           <Link
             href="/about"
             className="block px-3 py-2 text-dark hover:text-primary transition-colors"
