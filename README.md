@@ -111,6 +111,9 @@ Run the SQL files in your Supabase SQL editor in this order:
 2. `db/policies.sql` - Sets up Row Level Security policies
 3. `db/seed.sql` - Adds sample data (optional)
 
+**⚠️ Important**: If you encounter the error "Could not find the table 'public.user_profiles' in the schema cache" during user registration, run the migration:
+- Execute the contents of `db/migrations/001_create_user_profiles_table.sql` in your Supabase SQL editor
+
 #### Enable Authentication
 In your Supabase dashboard:
 1. Go to Authentication > Settings
