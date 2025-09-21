@@ -27,26 +27,29 @@ export default function SignUpPage() {
   const router = useRouter()
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value })
-    // Clear validation error when user starts typing
-    if (validationErrors[field]) {
-      setValidationErrors({ ...validationErrors, [field]: '' })
-    }
+
+  setFormData({ ...formData, [field]: value })
+  // Clear validation error when user starts typing
+  if (validationErrors[field]) {
+    setValidationErrors({ ...validationErrors, [field]: '' })
+
   }
 
   const validatePassword = (password: string) => {
-    const errors: string[] = []
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters')
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter')
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push('Password must contain at least one number')
-    }
-    return errors
+
+  const errors: string[] = []
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters')
   }
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter')
+  }
+  if (!/[0-9]/.test(password)) {
+    errors.push('Password must contain at least one number')
+  }
+  return errors
+  }
+ main
 
   const handlePasswordChange = (password: string) => {
     setFormData({ ...formData, password })
@@ -134,11 +137,13 @@ export default function SignUpPage() {
                       id="first_name"
                       name="first_name"
                       type="text"
+copilot/fix-7bdb2f18-417e-4681-b8f8-61934555f51e
                       autoComplete="given-name"
                       required
                       placeholder="First Name"
                       value={formData.first_name}
                       onChange={(e) => handleInputChange('first_name', e.target.value)}
+
                       className={validationErrors.first_name ? 'border-red-500' : ''}
                     />
                     {validationErrors.first_name && (
@@ -184,11 +189,13 @@ export default function SignUpPage() {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={validationErrors.email ? 'border-red-500' : ''}
-                  />
-                  {validationErrors.email && (
-                    <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
-                  )}
+onChange={(e) => handleInputChange('email', e.target.value)}
+placeholder="Enter your email"
+className={validationErrors.email ? 'border-red-500' : ''}
+/>
+{validationErrors.email && (
+  <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+)}
                 </div>
               </div>
 
@@ -205,19 +212,37 @@ export default function SignUpPage() {
                     required
                     placeholder="Create a password"
                     value={formData.password}
-                    onChange={(e) => handlePasswordChange(e.target.value)}
-                    className={validationErrors.password || passwordErrors.length > 0 ? 'border-red-500' : ''}
-                  />
-                  {validationErrors.password && (
-                    <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
-                  )}
-                  {passwordErrors.length > 0 && (
-                    <div className="mt-1">
-                      {passwordErrors.map((error, index) => (
-                        <p key={index} className="text-sm text-red-600">{error}</p>
-                      ))}
-                    </div>
-                  )}
+<Input
+  id="password"
+  name="password"
+  type="password"
+  autoComplete="new-password"
+  placeholder="Create a password"
+  value={formData.password}
+  onChange={e => {
+    handleInputChange('password', e.target.value);
+    handlePasswordChange(e.target.value);
+  }}
+  className={validationErrors.password || passwordErrors.length > 0 ? 'border-red-500' : ''}
+/>
+{validationErrors.password && (
+  <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
+)}
+{passwordErrors.length > 0 && (
+  <div className="mt-1">
+    {passwordErrors.map((error, index) => (
+      <p key={index} className="text-sm text-red-600">{error}</p>
+    ))}
+  </div>
+)}
+<div className="mt-2 text-sm text-gray-600">
+  <p>Password requirements</p>
+  <ul className="list-disc list-inside text-xs mt-1">
+    <li>At least 8 characters</li>
+    <li>At least one uppercase letter</li>
+    <li>At least one number</li>
+  </ul>
+</div>
                 </div>
               </div>
 
@@ -245,27 +270,28 @@ export default function SignUpPage() {
                 </div>
               </div>
 
-              {(formData.role === 'brand' || formData.role === 'school_admin') && (
-                <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-dark">
-                    Company/Organization
-                  </label>
-                  <div className="mt-1">
-                    <Input
-                      id="company"
-                      name="company"
-                      type="text"
-                      placeholder="Enter your company or organization name"
-                      value={formData.company}
-                      onChange={(e) => handleInputChange('company', e.target.value)}
-                      className={validationErrors.company ? 'border-red-500' : ''}
-                    />
-                    {validationErrors.company && (
-                      <p className="mt-1 text-sm text-red-600">{validationErrors.company}</p>
-                    )}
-                  </div>
-                </div>
-              )}
+{(formData.role === 'brand' || formData.role === 'school_admin') && (
+  <div>
+    <label htmlFor="company" className="block text-sm font-medium text-dark">
+      Company/Organization
+    </label>
+    <div className="mt-1">
+      <Input
+        id="company"
+        name="company"
+        type="text"
+        autoComplete="organization"
+        value={formData.company}
+        onChange={e => handleInputChange('company', e.target.value)}
+        placeholder="Enter your company or organization name"
+        className={validationErrors.company ? 'border-red-500' : ''}
+      />
+      {validationErrors.company && (
+        <p className="mt-1 text-sm text-red-600">{validationErrors.company}</p>
+      )}
+    </div>
+  </div>
+)}
 
               <div>
                 <Button

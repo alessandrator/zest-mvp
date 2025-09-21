@@ -74,10 +74,7 @@ export async function POST(request: NextRequest) {
       // Note: In a production app, you might want to use database transactions
       // or implement a cleanup job to remove orphaned auth users
       // If profile creation fails, we should clean up the auth user
-      // Note: In a real app, you might want to handle this in a transaction
       await supabase.auth.admin.deleteUser(authData.user.id)
-
-      
       return NextResponse.json(
         { error: 'Failed to create user profile. Please try again.' },
         { status: 500 }

@@ -38,6 +38,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     website: string | null
     social_links: Record<string, unknown> | null
     verified: boolean
+    active: boolean
     created_at: string
     updated_at: string
   }
@@ -60,6 +61,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
       website: profile.website,
       social_links: profile.social_links,
       verified: profile.verified,
+      active: profile.active,
       created_at: profile.created_at,
       updated_at: profile.updated_at,
     },
