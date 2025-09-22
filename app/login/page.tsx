@@ -21,17 +21,28 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    console.log('[Login] Starting sign-in process for:', email)
+
     try {
       // Validate input
       const validatedData = signInSchema.parse({ email, password })
       
       const supabase = createClient()
+      console.log('[Login] Attempting signInWithPassword...')
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
         password: validatedData.password,
       })
 
+      console.log('[Login] SignIn response:', { 
+        hasSession: !!data?.session, 
+        hasUser: !!data?.user,
+        error: error?.message 
+      })
+
       if (error) {
+        console.error('[Login] SignIn error:', error)
         // Check if it's a configuration error vs actual auth error
         if (error.message?.includes('not configured')) {
           toast.error('Authentication service is not configured. Please contact support.')
@@ -43,21 +54,38 @@ export default function LoginPage() {
 
       if (data.session) {
         // Session established successfully
+        console.log('[Login] Session established:', data.session.user.id)
         toast.success('Login successful! Redirecting...')
         
         // Force session refresh to ensure server-client sync
-        await supabase.auth.refreshSession()
+        console.log('[Login] Refreshing session...')
+        const refreshResult = await supabase.auth.refreshSession()
+        console.log('[Login] Session refresh result:', { 
+          hasSession: !!refreshResult.data?.session,
+          error: refreshResult.error?.message 
+        })
+        
+        // Check if we can get the session back
+        const { data: sessionCheck } = await supabase.auth.getSession()
+        console.log('[Login] Session check after refresh:', { 
+          hasSession: !!sessionCheck.session,
+          userId: sessionCheck.session?.user?.id 
+        })
         
         // Add a longer delay to ensure session cookies are properly set
+        console.log('[Login] Waiting 1 second for cookies to be set...')
         await new Promise(resolve => setTimeout(resolve, 1000))
         
         // Redirect to callback page for proper session validation
+        console.log('[Login] Redirecting to callback...')
         router.push('/callback')
       } else {
         // No session established
+        console.error('[Login] No session in response data')
         toast.error('Failed to establish session. Please try again.')
       }
     } catch (error) {
+      console.error('[Login] Catch block error:', error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {

@@ -44,6 +44,8 @@ export async function updateSession(request: NextRequest) {
     error: userError,
   } = await supabase.auth.getUser()
 
+
+  console.log('[Middleware] Auth check for:', request.nextUrl.pathname, 'User:', user?.id || 'none')
   if (userError) {
     console.warn('[Middleware] Error getting user:', userError.message)
   }
@@ -104,10 +106,20 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname === '/'
   )
 
+  // Special handling for dashboard routes - require authentication
+  if (request.nextUrl.pathname.startsWith('/dashboard') && !isAuthenticated) {
+    console.log('[Middleware] Dashboard access attempt without valid authentication, redirecting to login')
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
   if (!isAuthenticated && isProtectedRoute) {
+
     // No user and trying to access protected route, redirect to login
     console.log(`[Middleware] Protected route access denied: ${request.nextUrl.pathname}`)
     console.log('[Middleware] User not authenticated, redirecting to login')
+    
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
