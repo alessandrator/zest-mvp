@@ -24,6 +24,15 @@ export function createClient() {
 
   return createBrowserClient<Database>(
     supabaseUrl,
-    supabaseAnonKey
+    supabaseAnonKey,
+    {
+      // Enhanced cookie configuration for better session persistence
+      cookieOptions: {
+        name: 'sb',
+        domain: undefined, // Will use current domain including localhost
+        path: '/',
+        sameSite: 'lax' // Allow cross-site requests for localhost testing
+      }
+    }
   )
 }

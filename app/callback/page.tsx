@@ -12,11 +12,13 @@ export default function CallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       console.log('[Callback] Starting callback validation...')
+      console.log('[Callback] Current URL:', window.location.href)
+      console.log('[Callback] Initial cookies:', document.cookie)
       
       try {
         const supabase = createClient()
         
-        // First, check both session and user for comprehensive validation
+        // First, check both session and user for comprehensive validation as required
         console.log('[Callback] Checking initial session...')
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
         
@@ -29,53 +31,59 @@ export default function CallbackPage() {
           sessionError: sessionError?.message,
           userError: userError?.message,
           sessionUserId: sessionData?.session?.user?.id,
-          userUserId: userData?.user?.id
+          userUserId: userData?.user?.id,
+          sessionAccessToken: !!sessionData?.session?.access_token,
+          sessionRefreshToken: !!sessionData?.session?.refresh_token
         })
         
-        if (sessionError) {
+        if (sessionError && !sessionError.message?.includes('not configured')) {
           console.error('[Callback] Initial session error:', sessionError)
-          // Check if it's a configuration error vs actual auth error
-          if (sessionError.message?.includes('not configured')) {
-            toast.error('Authentication service is not configured. Please contact support.')
-          } else {
-            toast.error('Failed to verify session')
-          }
+          toast.error('Failed to verify session')
           router.push('/login')
           return
         }
 
+        if (userError && !userError.message?.includes('not configured')) {
+          console.error('[Callback] Initial user error:', userError)
+          toast.error('Failed to verify user')
+          router.push('/login')
+          return
+        }
+        
         // If no session yet, wait a bit and try again (for timing issues)
         if (!sessionData?.session && !userData?.user) {
           console.log('[Callback] No session or user found, waiting and retrying...')
           await new Promise(resolve => setTimeout(resolve, 1500))
           
-          // Try to refresh the session
+          // Try to refresh the session as required
           console.log('[Callback] Refreshing session...')
           const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
           
           console.log('[Callback] Refresh result:', {
             hasSession: !!refreshData?.session,
             hasUser: !!refreshData?.user,
+            sessionUserId: refreshData?.session?.user?.id,
+            userUserId: refreshData?.user?.id,
             error: refreshError?.message
           })
           
-          if (refreshError) {
+          if (refreshError && !refreshError.message?.includes('not configured')) {
             console.error('[Callback] Session refresh error:', refreshError)
             toast.error('Failed to establish session. Please login again.')
             router.push('/login')
             return
           }
 
-          if (!refreshData?.session) {
-            // Still no session after refresh
-            console.error('[Callback] Still no session after refresh')
+          if (!refreshData?.session && !refreshData?.user) {
+            // Still no session or user after refresh
+            console.error('[Callback] Still no session or user after refresh')
             toast.error('Session not found. Please login again.')
             router.push('/login')
             return
           }
         }
 
-        // Final validation - check both session and user one more time
+        // Final validation - check both session and user one more time as required
         console.log('[Callback] Final validation checks...')
         const { data: { session }, error: finalSessionError } = await supabase.auth.getSession()
         const { data: { user }, error: finalUserError } = await supabase.auth.getUser()
@@ -88,34 +96,52 @@ export default function CallbackPage() {
           sessionUserId: session?.user?.id,
           userUserId: user?.id,
           sessionAccessToken: !!session?.access_token,
-          sessionRefreshToken: !!session?.refresh_token
+          sessionRefreshToken: !!session?.refresh_token,
+          sessionExpiresAt: session?.expires_at
         })
         
-        if (finalSessionError) {
+        if (finalSessionError && !finalSessionError.message?.includes('not configured')) {
           console.error('[Callback] Final session check error:', finalSessionError)
           toast.error('Failed to verify session')
           router.push('/login')
           return
         }
 
-        if (finalUserError) {
+        if (finalUserError && !finalUserError.message?.includes('not configured')) {
           console.error('[Callback] Final user check error:', finalUserError)
           toast.error('Failed to verify user')
           router.push('/login')
           return
         }
 
-        // Check if we have either a valid session or user (as per requirements)
-        if ((session?.user) || user) {
-          // Valid authentication found
+        // Check if we have either a valid session or user (as per requirements: "at least one is valid")
+        const hasValidSession = session?.user && session?.access_token
+        const hasValidUser = user && user.id
+        
+        console.log('[Callback] Validation summary:', {
+          hasValidSession,
+          hasValidUser,
+          canProceed: hasValidSession || hasValidUser
+        })
+
+        if (hasValidSession || hasValidUser) {
+          // Valid authentication found - redirect to /dashboard as required
           const validUserId = session?.user?.id || user?.id
           console.log('[Callback] Session/user validated successfully:', validUserId)
+          console.log('[Callback] Authentication details:', {
+            sessionValid: hasValidSession,
+            userValid: hasValidUser,
+            userId: validUserId,
+            userEmail: session?.user?.email || user?.email
+          })
+          
+          // Log final cookie state for debugging
+          console.log('[Callback] Final cookies before redirect:', document.cookie)
+          
+          // Success message
           toast.success('Login successful! Welcome back.')
           
-          // Log cookie information for debugging
-          console.log('[Callback] Current cookies:', document.cookie)
-          
-          // Force one more small delay to ensure middleware sees the session
+          // Small delay to ensure middleware sees the session (as required)
           console.log('[Callback] Final delay before redirect...')
           await new Promise(resolve => setTimeout(resolve, 500))
           
@@ -124,11 +150,23 @@ export default function CallbackPage() {
         } else {
           // No valid session or user found after all attempts
           console.error('[Callback] No valid session or user found after all attempts')
+          console.error('[Callback] Final state:', {
+            session: session ? 'exists but invalid' : 'null',
+            user: user ? 'exists but invalid' : 'null',
+            sessionHasUser: !!session?.user,
+            sessionHasToken: !!session?.access_token,
+            userHasId: !!user?.id
+          })
           toast.error('Session validation failed. Please login again.')
           router.push('/login')
         }
       } catch (error) {
         console.error('[Callback] Callback error:', error)
+        console.error('[Callback] Error details:', {
+          name: error instanceof Error ? error.name : 'Unknown',
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        })
         toast.error('An error occurred. Please try again.')
         router.push('/login')
       }

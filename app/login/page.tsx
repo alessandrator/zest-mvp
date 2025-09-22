@@ -29,6 +29,7 @@ export default function LoginPage() {
       
       const supabase = createClient()
       console.log('[Login] Attempting signInWithPassword...')
+      console.log('[Login] Current cookies before login:', document.cookie)
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
@@ -38,6 +39,9 @@ export default function LoginPage() {
       console.log('[Login] SignIn response:', { 
         hasSession: !!data?.session, 
         hasUser: !!data?.user,
+        sessionUserId: data?.session?.user?.id,
+        accessToken: !!data?.session?.access_token,
+        refreshToken: !!data?.session?.refresh_token,
         error: error?.message 
       })
 
@@ -55,28 +59,55 @@ export default function LoginPage() {
       if (data.session) {
         // Session established successfully
         console.log('[Login] Session established:', data.session.user.id)
-        toast.success('Login successful! Redirecting...')
+        console.log('[Login] Session details:', {
+          userId: data.session.user.id,
+          email: data.session.user.email,
+          expiresAt: data.session.expires_at,
+          tokenType: data.session.token_type
+        })
         
         // Force session refresh to ensure server-client sync
-        console.log('[Login] Refreshing session...')
+        console.log('[Login] Refreshing session to ensure persistence...')
         const refreshResult = await supabase.auth.refreshSession()
         console.log('[Login] Session refresh result:', { 
           hasSession: !!refreshResult.data?.session,
+          hasUser: !!refreshResult.data?.user,
           error: refreshResult.error?.message 
         })
         
+        if (refreshResult.error) {
+          console.error('[Login] Session refresh failed:', refreshResult.error)
+          toast.error('Failed to establish session. Please try again.')
+          return
+        }
+        
         // Check if we can get the session back
-        const { data: sessionCheck } = await supabase.auth.getSession()
+        const { data: sessionCheck, error: sessionCheckError } = await supabase.auth.getSession()
         console.log('[Login] Session check after refresh:', { 
           hasSession: !!sessionCheck.session,
-          userId: sessionCheck.session?.user?.id 
+          userId: sessionCheck.session?.user?.id,
+          error: sessionCheckError?.message
         })
         
-        // Add a longer delay to ensure session cookies are properly set
+        if (sessionCheckError) {
+          console.error('[Login] Session check error:', sessionCheckError)
+          toast.error('Failed to verify session. Please try again.')
+          return
+        }
+        
+        // Log cookies after successful authentication
+        console.log('[Login] Cookies after authentication:', document.cookie)
+        
+        // Wait exactly 1 second as required for cookies/session to be properly set
         console.log('[Login] Waiting 1 second for cookies to be set...')
         await new Promise(resolve => setTimeout(resolve, 1000))
         
-        // Redirect to callback page for proper session validation
+        console.log('[Login] Cookies after 1 second delay:', document.cookie)
+        
+        // Show success message
+        toast.success('Login successful! Redirecting...')
+        
+        // Redirect to callback page for proper session validation as required
         console.log('[Login] Redirecting to callback...')
         router.push('/callback')
       } else {
@@ -87,8 +118,14 @@ export default function LoginPage() {
     } catch (error) {
       console.error('[Login] Catch block error:', error)
       if (error instanceof Error) {
+        console.error('[Login] Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        })
         toast.error(error.message)
       } else {
+        console.error('[Login] Unknown error:', error)
         toast.error('Invalid email or password')
       }
     } finally {
