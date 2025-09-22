@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -76,8 +77,19 @@ export default function SignUpPage() {
       const result = await response.json()
 
       if (response.ok) {
-        toast.success('Account created successfully! Please check your email to verify your account.')
-        router.push('/login')
+        // Check if user is immediately signed in (depends on Supabase config)
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user) {
+          // User is signed in, redirect to callback
+          toast.success('Account created successfully! Welcome to ZEST.')
+          router.push('/callback')
+        } else {
+          // Email verification required
+          toast.success('Account created successfully! Please check your email to verify your account.')
+          router.push('/login')
+        }
       } else {
         toast.error(result.error || 'Failed to create account')
       }

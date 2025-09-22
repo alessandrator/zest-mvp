@@ -36,9 +36,8 @@ export default function LoginPage() {
         return
       }
 
-      toast.success('Welcome back!')
-      router.push('/dashboard')
-      router.refresh()
+      // Redirect to callback to verify session before going to dashboard
+      router.push('/callback')
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
