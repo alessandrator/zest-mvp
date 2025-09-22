@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
 
     const userProfile = {
       user_id: authData.user.id,
+      email: validatedData.email,
       role: validatedData.role,
       brand_id: validatedData.brand_id || null,
       verified: false,
