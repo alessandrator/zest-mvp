@@ -14,7 +14,9 @@ export function createClient() {
         resetPasswordForEmail: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
         signUp: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } }),
         getSession: () => Promise.resolve({ data: { session: null }, error: { message: 'Supabase not configured' } }),
-        getUser: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } })
+        getUser: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } }),
+        refreshSession: () => Promise.resolve({ data: { session: null }, error: { message: 'Supabase not configured' } }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any

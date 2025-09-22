@@ -22,7 +22,7 @@ export function createClient() {
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
         getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-
+        refreshSession: () => Promise.resolve({ data: { session: null }, error: null }),
         signUp: () => Promise.resolve({ 
           data: { user: null }, 
           error: { 
@@ -30,10 +30,13 @@ export function createClient() {
             status: 503
           } 
         }),
+        signInWithPassword: () => Promise.resolve({ 
+          data: { session: null, user: null }, 
+          error: { message: 'Supabase not configured' } 
+        }),
         admin: {
           deleteUser: () => Promise.resolve({ data: null, error: null })
         }
-
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any
