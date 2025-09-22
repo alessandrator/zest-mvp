@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { Navbar } from '@/components/layouts/navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -55,15 +55,8 @@ const mockCampaigns = [
 export default async function CampaignsPage() {
   const user = await getCurrentUser()
   
-  // Require authentication and proper role
-  if (!user) {
-    redirect('/login')
-  }
-  
-  // Only allow students, influencers, consumers, school admins, and super admins
-  if (!canApplyToCampaigns(user) && user.role !== 'school_admin' && user.role !== 'super_admin') {
-    redirect('/dashboard')
-  }
+  // Note: This is a public page, but users get enhanced features when logged in
+  // No authentication required, but authenticated users can apply to campaigns
 
   return (
     <div className="min-h-screen bg-white">
@@ -76,12 +69,23 @@ export default async function CampaignsPage() {
             <h1 className="text-3xl font-display font-bold text-dark">
               Active Campaigns
             </h1>
-            <span className="bg-primary/20 text-primary text-sm px-3 py-1 rounded-full font-medium">
-              Private Dashboard
-            </span>
+            {user ? (
+              <span className="bg-primary/20 text-primary text-sm px-3 py-1 rounded-full font-medium">
+                Private Dashboard
+              </span>
+            ) : (
+              <span className="bg-gray-200 text-gray-600 text-sm px-3 py-1 rounded-full font-medium">
+                Public View
+              </span>
+            )}
           </div>
           <p className="text-gray-600">
             Discover exciting collaboration opportunities with top brands
+            {!user && (
+              <span className="block mt-1 text-sm text-primary">
+                <Link href="/login" className="underline">Sign in</Link> to apply to campaigns
+              </span>
+            )}
           </p>
         </div>
 
@@ -167,9 +171,19 @@ export default async function CampaignsPage() {
                 </div>
                 
                 <div className="pt-2">
-                  <Button className="w-full" size="sm">
-                    Apply Now
-                  </Button>
+                  {user && canApplyToCampaigns(user) ? (
+                    <Button className="w-full" size="sm">
+                      Apply Now
+                    </Button>
+                  ) : user ? (
+                    <Button className="w-full" size="sm" variant="outline" disabled>
+                      Not Eligible (Role: {user.role})
+                    </Button>
+                  ) : (
+                    <Button className="w-full" size="sm" variant="outline" asChild>
+                      <Link href="/login">Sign In to Apply</Link>
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

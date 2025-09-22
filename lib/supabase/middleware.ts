@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
     error: userError,
   } = await supabase.auth.getUser()
 
+
   if (userError) {
     console.warn('[Middleware] Error getting user:', userError.message)
   }
@@ -60,23 +61,35 @@ export async function updateSession(request: NextRequest) {
       return supabaseResponse
     } else {
       console.log('[Middleware] No valid session found either')
+
     }
   }
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/campaigns') &&
-    !request.nextUrl.pathname.startsWith('/request-access') &&
-    !request.nextUrl.pathname.startsWith('/forgot-password') &&
-    !request.nextUrl.pathname.startsWith('/reset-password') &&
-    !request.nextUrl.pathname.startsWith('/dashboard/demo') &&
-    !request.nextUrl.pathname.startsWith('/callback') &&
-    !request.nextUrl.pathname.startsWith('/signup') &&
-    request.nextUrl.pathname !== '/'
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  // Special handling for dashboard routes - extra validation
+  if (request.nextUrl.pathname.startsWith('/dashboard') && !isAuthenticated) {
+    console.log('Dashboard access attempt without valid session, redirecting to login')
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  // Check if this is a protected route that requires authentication
+  const isProtectedRoute = !(
+    request.nextUrl.pathname.startsWith('/login') ||
+    request.nextUrl.pathname.startsWith('/auth') ||
+    request.nextUrl.pathname.startsWith('/campaigns') ||
+    request.nextUrl.pathname.startsWith('/request-access') ||
+    request.nextUrl.pathname.startsWith('/forgot-password') ||
+    request.nextUrl.pathname.startsWith('/reset-password') ||
+    request.nextUrl.pathname.startsWith('/dashboard/demo') ||
+    request.nextUrl.pathname.startsWith('/callback') ||
+    request.nextUrl.pathname.startsWith('/signup') ||
+    request.nextUrl.pathname === '/'
+  )
+
+  if (!isAuthenticated && isProtectedRoute) {
+    // No user and trying to access protected route, redirect to login
+    console.log(`Protected route access attempt without authentication: ${request.nextUrl.pathname}`)
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
