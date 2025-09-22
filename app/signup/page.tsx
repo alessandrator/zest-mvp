@@ -49,17 +49,19 @@ export default function SignUpPage() {
   return errors
   }
 
-  const handlePasswordChange = (password: string) => {
-    setFormData({ ...formData, password })
-    setPasswordErrors(validatePassword(password))
-  }
+
+const handlePasswordChange = (password: string) => {
+  setFormData({ ...formData, password })
+  setPasswordErrors(validatePassword(password))
+}
+
+  const [loading, setLoading] = useState(false)
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-
     setValidationErrors({})
-
 
     try {
       // Validate input
@@ -91,7 +93,18 @@ export default function SignUpPage() {
           router.push('/login')
         }
       } else {
-        toast.error(result.error || 'Failed to create account')
+        // Show specific error messages from the server
+        let errorMessage = result.error || 'Failed to create account'
+        
+        // Add request ID if available for support purposes
+        if (result.requestId) {
+          console.error(`Signup failed with request ID: ${result.requestId}`)
+          if (process.env.NODE_ENV === 'development') {
+            errorMessage += ` (Request ID: ${result.requestId})`
+          }
+        }
+        
+        toast.error(errorMessage)
       }
     } catch (error) {
       if (error instanceof ZodError) {
@@ -104,7 +117,14 @@ export default function SignUpPage() {
         setValidationErrors(errors)
         toast.error('Please fix the validation errors')
       } else if (error instanceof Error) {
-        toast.error(error.message)
+
+        // Network or other errors
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          toast.error('Network error. Please check your connection and try again.')
+        } else {
+          toast.error(error.message)
+        }
+
       } else {
         toast.error('Failed to create account. Please try again.')
       }
@@ -127,16 +147,12 @@ export default function SignUpPage() {
           Create your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-
           Already have an account?{' '}
-
           <Link
             href="/login"
             className="font-medium text-primary hover:text-primary-600"
           >
-
             sign in to your existing account
-
           </Link>
         </p>
       </div>
@@ -178,14 +194,14 @@ export default function SignUpPage() {
                       id="last_name"
                       name="last_name"
                       type="text"
-value={formData.last_name}
-onChange={(e) => handleInputChange('last_name', e.target.value)}
-placeholder="Last name"
-className={validationErrors.last_name ? 'border-red-500' : ''}
-  />
-{validationErrors.last_name && (
-  <p className="mt-1 text-sm text-red-600">{validationErrors.last_name}</p>
-)}
+                      value={formData.last_name}
+                      onChange={(e) => handleInputChange('last_name', e.target.value)}
+                      placeholder="Last name"
+                      className={validationErrors.last_name ? 'border-red-500' : ''}
+                    />
+                    {validationErrors.last_name && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.last_name}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -206,6 +222,7 @@ className={validationErrors.last_name ? 'border-red-500' : ''}
                     placeholder="Enter your email"
                     className={validationErrors.email ? 'border-red-500' : ''}
                   />
+
 {validationErrors.email && (
   <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
 )}
@@ -231,6 +248,7 @@ className={validationErrors.last_name ? 'border-red-500' : ''}
                     placeholder="Enter your password"
                     className={validationErrors.password ? 'border-red-500' : ''}
                   />
+
 {validationErrors.password && (
   <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
 )}
@@ -251,6 +269,7 @@ className={validationErrors.last_name ? 'border-red-500' : ''}
     <li>At least one number</li>
   </ul>
 </div>
+
                 </div>
               </div>
 
@@ -262,24 +281,22 @@ className={validationErrors.last_name ? 'border-red-500' : ''}
                   <select
                     id="role"
                     name="role"
-
                     required
                     value={formData.role}
                     onChange={(e) => handleInputChange('role', e.target.value)}
                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-
                   >
                     <option value="student">Student</option>
                     <option value="influencer">Influencer</option>
                     <option value="consumer">Consumer</option>
-<option value="brand">Brand Representative</option>
-<option value="school_admin">School Administrator</option>
-</select>
-{validationErrors.role && (
-  <p className="mt-1 text-sm text-red-600">{validationErrors.role}</p>
-)}
-</div>
-</div>
+                    <option value="brand">Brand Representative</option>
+                    <option value="school_admin">School Administrator</option>
+                  </select>
+                  {validationErrors.role && (
+                    <p className="mt-1 text-sm text-red-600">{validationErrors.role}</p>
+                  )}
+                </div>
+              </div>
 
 {(formData.role === 'brand' || formData.role === 'school_admin') && (
   <div>
@@ -308,9 +325,7 @@ className={validationErrors.last_name ? 'border-red-500' : ''}
                 <Button
                   type="submit"
                   className="w-full"
-
                   disabled={loading || passwordErrors.length > 0}
-
                 >
                   {loading ? (
                     <>
