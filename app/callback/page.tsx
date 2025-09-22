@@ -14,16 +14,13 @@ export default function CallbackPage() {
       try {
         const supabase = createClient()
         
-        // Wait a bit to ensure session is properly established
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // First, handle any auth callback from URL (for OAuth flows)
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
         
-        // Check if user session exists
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Session error:', error)
+        if (sessionError) {
+          console.error('Initial session error:', sessionError)
           // Check if it's a configuration error vs actual auth error
-          if (error.message?.includes('not configured')) {
+          if (sessionError.message?.includes('not configured')) {
             toast.error('Authentication service is not configured. Please contact support.')
           } else {
             toast.error('Failed to verify session')
@@ -32,13 +29,52 @@ export default function CallbackPage() {
           return
         }
 
+        // If no session yet, wait a bit and try again (for timing issues)
+        if (!sessionData?.session) {
+          console.log('No session found, waiting and retrying...')
+          await new Promise(resolve => setTimeout(resolve, 1500))
+          
+          // Try to refresh the session
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
+          
+          if (refreshError) {
+            console.error('Session refresh error:', refreshError)
+            toast.error('Failed to establish session. Please login again.')
+            router.push('/login')
+            return
+          }
+
+          if (!refreshData?.session) {
+            // Still no session after refresh
+            toast.error('Session not found. Please login again.')
+            router.push('/login')
+            return
+          }
+        }
+
+        // Get the current session one more time to be sure
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Final session check error:', error)
+          toast.error('Failed to verify session')
+          router.push('/login')
+          return
+        }
+
         if (session?.user) {
-          // Session exists, redirect to dashboard
+          // Session exists and is valid
+          console.log('Session validated successfully:', session.user.id)
           toast.success('Login successful! Welcome back.')
+          
+          // Force one more small delay to ensure middleware sees the session
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
           router.push('/dashboard')
         } else {
-          // No session, redirect to login
-          toast.error('Session not found. Please login again.')
+          // No session found after all attempts
+          console.error('No valid session found after all attempts')
+          toast.error('Session validation failed. Please login again.')
           router.push('/login')
         }
       } catch (error) {
