@@ -42,14 +42,17 @@ export default function LoginPage() {
       }
 
       if (data.session) {
-        // Session established successfully, show success message
-        toast.success('Login successful! Welcome back.')
+        // Session established successfully
+        toast.success('Login successful! Redirecting...')
         
-        // Force a small delay to ensure session cookies are set properly
-        await new Promise(resolve => setTimeout(resolve, 500))
+        // Force session refresh to ensure server-client sync
+        await supabase.auth.refreshSession()
         
-        // Redirect directly to dashboard instead of callback
-        router.push('/dashboard')
+        // Add a longer delay to ensure session cookies are properly set
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Redirect to callback page for proper session validation
+        router.push('/callback')
       } else {
         // No session established
         toast.error('Failed to establish session. Please try again.')
