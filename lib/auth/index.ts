@@ -1,15 +1,104 @@
 import { createClient } from '@/lib/supabase/server'
 import { UserRole, User } from '@/types'
+import { Database } from '@/types/supabase'
 import { cache } from 'react'
+
+// Helper function to create a fallback profile for users who exist in auth but not in user_profiles
+async function createFallbackProfile(supabase: ReturnType<typeof createClient>, authUser: {
+  id: string;
+  email?: string;
+  user_metadata?: Record<string, unknown>;
+  created_at?: string;
+}): Promise<User | null> {
+  try {
+    console.log(`[createFallbackProfile] Attempting to create fallback profile for user ${authUser.id}`)
+    
+    // Extract metadata from auth user if available
+    const metadata = authUser.user_metadata || {}
+    
+    const fallbackProfileData: Database['public']['Tables']['user_profiles']['Insert'] = {
+      user_id: authUser.id,
+      first_name: (metadata.first_name as string) || 'User',
+      last_name: (metadata.last_name as string) || '',
+      company: (metadata.company as string) || null,
+      brand_id: (metadata.brand_id as string) || null,
+      school_id: (metadata.school_id as string) || null,
+      role: (metadata.role as UserRole) || 'student', // Default to student
+      verified: false,
+      active: true,
+      avatar_url: null,
+      phone: null,
+      bio: null,
+      website: null,
+      social_links: null,
+    }
+
+    const { data: newProfile, error: createError } = await supabase
+      .from('user_profiles')
+      .insert([fallbackProfileData])
+      .select('*')
+      .single()
+
+    if (createError) {
+      console.error(`[createFallbackProfile] Failed to create fallback profile for user ${authUser.id}:`, createError.message)
+      return null
+    }
+
+    if (!newProfile) {
+      console.error(`[createFallbackProfile] No profile data returned after creation for user ${authUser.id}`)
+      return null
+    }
+
+    console.log(`[createFallbackProfile] Successfully created fallback profile for user ${authUser.id}`)
+
+    // Return the complete User object
+    return {
+      id: authUser.id,
+      email: authUser.email!,
+      role: newProfile.role,
+      profile: {
+        id: newProfile.id,
+        user_id: newProfile.user_id,
+        first_name: newProfile.first_name,
+        last_name: newProfile.last_name,
+        avatar_url: newProfile.avatar_url,
+        phone: newProfile.phone,
+        company: newProfile.company,
+        school_id: newProfile.school_id,
+        brand_id: newProfile.brand_id,
+        bio: newProfile.bio,
+        website: newProfile.website,
+        social_links: newProfile.social_links,
+        verified: newProfile.verified,
+        active: newProfile.active,
+        created_at: newProfile.created_at,
+        updated_at: newProfile.updated_at,
+      },
+      created_at: authUser.created_at!,
+      updated_at: newProfile.updated_at,
+    }
+  } catch (error) {
+    console.error(`[createFallbackProfile] Unexpected error creating fallback profile for user ${authUser.id}:`, error)
+    return null
+  }
+}
 
 export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = createClient()
   
   const { data: { user }, error } = await supabase.auth.getUser()
   
-  if (error || !user) {
+  if (error) {
+    console.warn('[getCurrentUser] Supabase auth error:', error.message)
     return null
   }
+
+  if (!user) {
+    console.log('[getCurrentUser] No authenticated user found')
+    return null
+  }
+
+  console.log(`[getCurrentUser] Found authenticated user: ${user.id} (${user.email})`)
 
   // Get user profile with explicit type assertion
   const { data: profileData, error: profileError } = await supabase
@@ -18,9 +107,40 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     .eq('user_id', user.id)
     .single()
 
-  if (profileError || !profileData) {
+  if (profileError) {
+    console.error(`[getCurrentUser] Profile lookup error for user ${user.id}:`, profileError.message)
+    
+    // Check if the table doesn't exist
+    if (profileError.message?.includes('relation "user_profiles" does not exist')) {
+      console.error('[getCurrentUser] CRITICAL: user_profiles table does not exist')
+      return null
+    }
+
+    // Check if it's just a missing profile (not found)
+    if (profileError.code === 'PGRST116') {
+      console.warn(`[getCurrentUser] No profile found in user_profiles for user ${user.id}, this user may need profile creation`)
+      
+      // Try to create a minimal profile for this user if they don't have one
+      // This is a fallback for existing auth users without profiles
+      const fallbackProfile = await createFallbackProfile(supabase, user)
+      if (fallbackProfile) {
+        console.log(`[getCurrentUser] Successfully created fallback profile for user ${user.id}`)
+        return fallbackProfile
+      }
+      
+      return null
+    }
+
+    // For other database errors, return null
     return null
   }
+
+  if (!profileData) {
+    console.warn(`[getCurrentUser] Profile data is null for user ${user.id}`)
+    return null
+  }
+
+  console.log(`[getCurrentUser] Successfully loaded profile for user ${user.id} with role: ${profileData.role}`)
 
   // Type assertion for the profile data
   const profile = profileData as {
@@ -43,7 +163,18 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     updated_at: string
   }
 
-  return {
+  // Validate that the profile has required data
+  if (!profile.role) {
+    console.error(`[getCurrentUser] Profile for user ${user.id} is missing required role field`)
+    return null
+  }
+
+  if (!profile.active) {
+    console.warn(`[getCurrentUser] Profile for user ${user.id} is inactive`)
+    return null
+  }
+
+  const userObject = {
     id: user.id,
     email: user.email!,
     role: profile.role,
@@ -68,6 +199,9 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     created_at: user.created_at!,
     updated_at: profile.updated_at,
   }
+
+  console.log(`[getCurrentUser] Returning user object for ${user.id} with role ${profile.role}`)
+  return userObject
 })
 
 export async function requireAuth(allowedRoles?: UserRole[]) {
