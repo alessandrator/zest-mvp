@@ -92,9 +92,7 @@ export async function POST(request: NextRequest) {
         )
       }
       return NextResponse.json(
- copilot/fix-eee52a11-2927-4db8-8257-2a6d52178a1d
         { error: authError.message || 'Authentication failed. Please try again.' },
-
         { status: 400 }
       )
     }
