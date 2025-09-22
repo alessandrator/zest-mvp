@@ -26,18 +26,34 @@ export default function LoginPage() {
       const validatedData = signInSchema.parse({ email, password })
       
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
         password: validatedData.password,
       })
 
       if (error) {
-        toast.error(error.message)
+        // Check if it's a configuration error vs actual auth error
+        if (error.message?.includes('not configured')) {
+          toast.error('Authentication service is not configured. Please contact support.')
+        } else {
+          toast.error(error.message)
+        }
         return
       }
 
-      // Redirect to callback to verify session before going to dashboard
-      router.push('/callback')
+      if (data.session) {
+        // Session established successfully, show success message
+        toast.success('Login successful! Welcome back.')
+        
+        // Force a small delay to ensure session cookies are set properly
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Redirect directly to dashboard instead of callback
+        router.push('/dashboard')
+      } else {
+        // No session established
+        toast.error('Failed to establish session. Please try again.')
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)

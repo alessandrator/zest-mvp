@@ -21,6 +21,7 @@ export function createClient() {
       }),
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
 
         signUp: () => Promise.resolve({ 
           data: { user: null }, 
