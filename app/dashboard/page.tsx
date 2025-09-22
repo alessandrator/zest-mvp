@@ -7,25 +7,35 @@ import Link from 'next/link'
 import { Bell, Settings, User, Award, Target, Eye, Play, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default async function UserDashboard() {
+  console.log('[Dashboard] Attempting to load user dashboard')
   const user = await getCurrentUser()
   
   if (!user) {
+    console.warn('[Dashboard] No user found, redirecting to login')
     redirect('/login')
   }
 
+  console.log(`[Dashboard] User loaded successfully: ${user.id} with role: ${user.role}`)
+
   // Redirect to role-specific dashboard if available
   if (user.role === 'super_admin') {
+    console.log('[Dashboard] Redirecting super_admin to /dashboard/admin')
     redirect('/dashboard/admin')
   }
   if (user.role === 'brand') {
+    console.log('[Dashboard] Redirecting brand to /dashboard/brand')
     redirect('/dashboard/brand')
   }
   if (user.role === 'school_admin') {
+    console.log('[Dashboard] Redirecting school_admin to /dashboard/school')
     redirect('/dashboard/school')
   }
   if (['student', 'influencer'].includes(user.role)) {
+    console.log(`[Dashboard] Redirecting ${user.role} to /dashboard/student`)
     redirect('/dashboard/student')
   }
+
+  console.log(`[Dashboard] No specific dashboard for role ${user.role}, showing generic dashboard`)
 
   /* 
    * ZEST User Dashboard

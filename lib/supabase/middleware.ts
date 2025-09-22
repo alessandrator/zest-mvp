@@ -40,15 +40,26 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser()
+
+  if (userError) {
+    console.warn('[Middleware] Error getting user:', userError.message)
+  }
 
   // Special handling for dashboard routes - check session as well for better reliability
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+    console.log('[Middleware] Dashboard access without user, checking session as fallback')
     // If we're going to dashboard but no user found, try to get session as fallback
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session?.user) {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError) {
+      console.warn('[Middleware] Error getting session:', sessionError.message)
+    } else if (session?.user) {
       // Session exists but getUser didn't work, this is ok - let it proceed
+      console.log('[Middleware] Found valid session, allowing dashboard access')
       return supabaseResponse
+    } else {
+      console.log('[Middleware] No valid session found either')
     }
   }
 
