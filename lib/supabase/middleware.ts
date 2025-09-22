@@ -38,41 +38,59 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
+  // Get user first
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser()
 
-  console.log('[Middleware] Auth check for:', request.nextUrl.pathname, 'User:', user?.id || 'none')
 
+  console.log('[Middleware] Auth check for:', request.nextUrl.pathname, 'User:', user?.id || 'none')
   if (userError) {
     console.warn('[Middleware] Error getting user:', userError.message)
   }
 
-  // Determine if user is authenticated (check both user and session for reliability)
-  let isAuthenticated = !!user
-  let session = null
-
-  // For dashboard routes or if no user found, also check session as fallback
-  if (!user || request.nextUrl.pathname.startsWith('/dashboard')) {
-    console.log('[Middleware] Checking session as well for better reliability')
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-    session = sessionData.session
-    
-    if (sessionError) {
-      console.warn('[Middleware] Error getting session:', sessionError.message)
-    } else if (session?.user) {
-      console.log('[Middleware] Found valid session:', session.user.id)
-      isAuthenticated = true
-    }
+  // Get session as fallback/additional validation
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+  
+  if (sessionError) {
+    console.warn('[Middleware] Error getting session:', sessionError.message)
   }
 
-  console.log('[Middleware] Authentication status:', { 
-    isAuthenticated, 
-    hasUser: !!user, 
-    hasSession: !!session,
-    route: request.nextUrl.pathname 
+  // Determine if user is authenticated - valid if either user or session exists
+  const isAuthenticated = !!(user || session?.user)
+  
+  // Enhanced logging for debugging
+  console.log(`[Middleware] Route: ${request.nextUrl.pathname}`)
+  console.log(`[Middleware] User exists: ${!!user}`)
+  console.log(`[Middleware] Session exists: ${!!session}`)
+  console.log(`[Middleware] Session user exists: ${!!session?.user}`)
+  console.log(`[Middleware] Is authenticated: ${isAuthenticated}`)
+  
+  // Log cookie information for debugging
+  const cookies = request.cookies.getAll()
+  const authCookies = cookies.filter(cookie => 
+    cookie.name.includes('supabase') || 
+    cookie.name.includes('sb-') || 
+    cookie.name.includes('auth')
+  )
+  console.log(`[Middleware] Auth cookies found: ${authCookies.length}`)
+  authCookies.forEach(cookie => {
+    console.log(`[Middleware] Cookie: ${cookie.name} = ${cookie.value.substring(0, 20)}...`)
   })
+
+  // Special handling for dashboard routes - enhanced validation (except demo)
+  if (request.nextUrl.pathname.startsWith('/dashboard') && !request.nextUrl.pathname.startsWith('/dashboard/demo')) {
+    if (!isAuthenticated) {
+      console.log('[Middleware] Dashboard access denied - no valid authentication found')
+      console.log('[Middleware] Redirecting to login')
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    } else {
+      console.log('[Middleware] Dashboard access granted - valid authentication found')
+    }
+  }
 
   // Check if this is a protected route that requires authentication
   const isProtectedRoute = !(
@@ -97,8 +115,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (!isAuthenticated && isProtectedRoute) {
-    // No authentication and trying to access protected route, redirect to login
-    console.log(`[Middleware] Protected route access attempt without authentication: ${request.nextUrl.pathname}`)
+
+    // No user and trying to access protected route, redirect to login
+    console.log(`[Middleware] Protected route access denied: ${request.nextUrl.pathname}`)
+    console.log('[Middleware] User not authenticated, redirecting to login')
+    
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
