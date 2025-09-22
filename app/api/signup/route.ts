@@ -5,13 +5,11 @@ import { isSupabaseConfigured } from '@/lib/env'
 import { ZodError } from 'zod'
 
 export async function POST(request: NextRequest) {
-  // Generate unique request ID for logging
   const requestId = Date.now().toString(36) + Math.random().toString(36).substr(2)
-  
+
   try {
     console.log(`[${requestId}] Starting signup request`)
-    
-    // Check Supabase configuration first
+
     if (!isSupabaseConfigured()) {
       console.error(`[${requestId}] Supabase not properly configured`)
       return NextResponse.json(
@@ -19,22 +17,31 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       )
     }
-    
+
     const supabase = createClient()
-    
-    // Log basic request info (without sensitive data)
     console.log(`[${requestId}] Request received from origin:`, request.headers.get('origin'))
-    
+
     const body = await request.json()
     console.log(`[${requestId}] Request body received, fields:`, Object.keys(body))
-    
-    // Validate the request data
-    console.log(`[${requestId}] Validating request data with schema`)
-    const validatedData = signUpSchema.parse(body)
 
-    console.log(`[${requestId}] Validation successful, role: ${validatedData.role}`)
-    
-    // Create user with Supabase Auth
+    // Validazione dati
+    let validatedData
+    try {
+      console.log(`[${requestId}] Validating request data with schema`)
+      validatedData = signUpSchema.parse(body)
+      console.log(`[${requestId}] Validation successful, role: ${validatedData.role}`)
+    } catch (error) {
+      if (error instanceof ZodError) {
+        console.error(`[${requestId}] Validation error:`, error.issues)
+        return NextResponse.json(
+          { error: 'Invalid request data', details: error.issues },
+          { status: 400 }
+        )
+      }
+      throw error
+    }
+
+    // Signup Supabase Auth
     console.log(`[${requestId}] Creating user with Supabase Auth`)
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: validatedData.email,
@@ -42,47 +49,46 @@ export async function POST(request: NextRequest) {
       options: {
         data: {
           first_name: validatedData.first_name,
-          last_name: validatedData.last_name,
-          role: validatedData.role,
+          last_name: validatedData.last_name || null,
           company: validatedData.company || null,
+          brand_id: validatedData.brand_id || null,
+          verified: false,
+          active: true,
+          role: validatedData.role,
         }
       }
     })
 
     if (authError) {
       console.error(`[${requestId}] Supabase auth error:`, authError)
-      
-      // Handle connection/network errors
+
       if (authError.message.includes('fetch failed') || authError.message.includes('ENOTFOUND')) {
         return NextResponse.json(
           { error: 'Unable to connect to authentication service. Please check your network connection and try again.' },
           { status: 503 }
         )
       }
-      
-      // Handle specific auth errors
-      if (authError.message.includes('already registered') || authError.message.includes('User already registered')) {
+      if (
+        authError.message.includes('already registered') ||
+        authError.message.includes('User already registered')
+      ) {
         return NextResponse.json(
           { error: 'An account with this email already exists. Please sign in instead.' },
           { status: 409 }
         )
       }
-      
       if (authError.message.includes('Invalid email')) {
         return NextResponse.json(
           { error: 'Please provide a valid email address.' },
           { status: 400 }
         )
       }
-      
       if (authError.message.includes('Password')) {
         return NextResponse.json(
           { error: 'Password must be at least 6 characters long.' },
           { status: 400 }
         )
       }
-      
-      // Generic auth error
       return NextResponse.json(
         { error: authError.message || 'Authentication failed. Please try again.' },
         { status: 400 }
@@ -92,25 +98,24 @@ export async function POST(request: NextRequest) {
     if (!authData.user) {
       console.error(`[${requestId}] No user returned from Supabase auth`)
       return NextResponse.json(
-        { error: 'Failed to create user account' },
+        { error: 'No user returned from authentication. Please try again.' },
         { status: 500 }
       )
     }
 
+    // Crea profilo utente
     console.log(`[${requestId}] User created successfully with ID: ${authData.user.id}`)
-
-    // Create user profile in our database
     console.log(`[${requestId}] Creating user profile in database`)
     const userProfile = {
       user_id: authData.user.id,
       role: validatedData.role,
-      first_name: validatedData.first_name,
-      last_name: validatedData.last_name,
-      company: validatedData.company || null,
-      school_id: validatedData.school_id || null,
       brand_id: validatedData.brand_id || null,
       verified: false,
       active: true,
+      company: validatedData.company || null,
+      email: validatedData.email,
+      first_name: validatedData.first_name,
+      last_name: validatedData.last_name || null,
     }
 
     const { data: profileData, error: profileError } = await supabase
@@ -121,34 +126,30 @@ export async function POST(request: NextRequest) {
 
     if (profileError) {
       console.error(`[${requestId}] Profile creation error:`, profileError)
-      
-      // Try to clean up the auth user if profile creation fails
+      // Cleanup auth user se fallisce creazione profilo
       try {
         console.log(`[${requestId}] Attempting to clean up auth user due to profile creation failure`)
-        // Note: This requires service role key to work properly
         await supabase.auth.admin.deleteUser(authData.user.id)
         console.log(`[${requestId}] Auth user cleanup successful`)
       } catch (cleanupError) {
         console.error(`[${requestId}] Failed to cleanup auth user:`, cleanupError)
       }
-      
-      // Check if it's a database configuration issue
+
       if (profileError.message?.includes('relation "user_profiles" does not exist')) {
         return NextResponse.json(
           { error: 'Database tables are not set up. Please contact support.' },
           { status: 503 }
         )
       }
-      
       return NextResponse.json(
-        { error: 'Failed to create user profile. Please try again.' },
+        { error: profileError.message || 'Failed to create user profile. Please try again.' },
         { status: 500 }
       )
     }
 
     console.log(`[${requestId}] Profile created successfully`)
     return NextResponse.json(
-      { 
+      {
         message: 'Account created successfully! Please check your email to verify your account.',
         user: {
           id: authData.user.id,
@@ -160,32 +161,20 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    if (error instanceof ZodError) {
-      console.error(`[${requestId}] Validation error:`, error.issues)
-      return NextResponse.json(
-        { 
-          error: 'Invalid request data',
-          details: error.issues
-        },
-        { status: 400 }
-      )
-    }
-
-    // Log full error details for debugging
+    // Errore non previsto
     console.error(`[${requestId}] Unexpected error in signup:`, {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       error: error
     })
 
-    // Return generic error but log specifics
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         requestId: requestId,
-        details: process.env.NODE_ENV === 'development' ? 
-          (error instanceof Error ? error.message : 'Unknown error') : 
-          undefined
+        details: process.env.NODE_ENV === 'development'
+          ? (error instanceof Error ? error.message : 'Unknown error')
+          : undefined
       },
       { status: 500 }
     )
