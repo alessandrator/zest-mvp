@@ -22,7 +22,12 @@ export default function CallbackPage() {
         
         if (error) {
           console.error('Session error:', error)
-          toast.error('Failed to verify session')
+          // Check if it's a configuration error vs actual auth error
+          if (error.message?.includes('not configured')) {
+            toast.error('Authentication service is not configured. Please contact support.')
+          } else {
+            toast.error('Failed to verify session')
+          }
           router.push('/login')
           return
         }

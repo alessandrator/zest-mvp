@@ -42,6 +42,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Special handling for dashboard routes - check session as well for better reliability
+  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+    // If we're going to dashboard but no user found, try to get session as fallback
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user) {
+      // Session exists but getUser didn't work, this is ok - let it proceed
+      return supabaseResponse
+    }
+  }
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
