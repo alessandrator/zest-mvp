@@ -20,6 +20,27 @@ Connect brands with students and influencers through innovative digital marketin
 - **Type Safety**: Full TypeScript implementation with Zod validation
 - **Real-time Updates**: Built on Supabase for real-time data synchronization
 - **Environment Validation**: Runtime checks for required configuration
+- **Session Management**: Robust authentication flow with redirect loop prevention
+
+## 🔐 Authentication & Session Management
+
+The application implements a secure authentication system with several key improvements:
+
+### Session Handling
+- **Direct Dashboard Redirect**: After successful login, users are redirected directly to their dashboard
+- **Enhanced Middleware**: Dual session validation using both `getUser()` and `getSession()` for reliability
+- **Cookie Synchronization**: Proper timing ensures session cookies are set before redirects
+- **Redirect Loop Prevention**: Improved logic prevents infinite redirect loops during authentication
+
+### Error Handling
+- **User-Friendly Messages**: Clear error messages for authentication failures
+- **Configuration Detection**: Graceful handling when Supabase is not configured
+- **Fallback Validation**: Multiple validation layers for session verification
+
+### Security Features
+- **Middleware Protection**: Automatic redirect to login for protected routes
+- **Role-Based Routing**: Users are redirected to appropriate dashboards based on their roles
+- **Session Persistence**: Reliable session management across page refreshes
 
 ## 🛠 Tech Stack
 
