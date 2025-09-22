@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { getCurrentUser } from '@/lib/auth'
+import { DashboardClientWrapper } from '@/components/dashboard/dashboard-client-wrapper'
 import Link from 'next/link'
 import { Bell, Settings, User, Award, Target, Eye, Play, CheckCircle, AlertCircle } from 'lucide-react'
 
@@ -67,7 +68,8 @@ export default async function UserDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-zest-yellow">
+    <DashboardClientWrapper>
+      <div className="min-h-screen bg-zest-yellow">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -336,5 +338,6 @@ export default async function UserDashboard() {
         </div>
       </div>
     </div>
+    </DashboardClientWrapper>
   )
 }

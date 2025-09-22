@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (authError) {
+
       console.error(`[${requestId}] Supabase auth error:`, authError)
 
       if (authError.message.includes('fetch failed') || authError.message.includes('ENOTFOUND')) {
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
         authError.message.includes('already registered') ||
         authError.message.includes('User already registered')
       ) {
+
         return NextResponse.json(
           { error: 'An account with this email already exists. Please sign in instead.' },
           { status: 409 }
@@ -90,7 +92,9 @@ export async function POST(request: NextRequest) {
         )
       }
       return NextResponse.json(
+ copilot/fix-eee52a11-2927-4db8-8257-2a6d52178a1d
         { error: authError.message || 'Authentication failed. Please try again.' },
+
         { status: 400 }
       )
     }
@@ -103,19 +107,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+
     // Crea profilo utente
     console.log(`[${requestId}] User created successfully with ID: ${authData.user.id}`)
     console.log(`[${requestId}] Creating user profile in database`)
+
     const userProfile = {
       user_id: authData.user.id,
       role: validatedData.role,
       brand_id: validatedData.brand_id || null,
       verified: false,
       active: true,
+
       company: validatedData.company || null,
       email: validatedData.email,
       first_name: validatedData.first_name,
       last_name: validatedData.last_name || null,
+
     }
 
     const { data: profileData, error: profileError } = await supabase
@@ -141,6 +149,7 @@ export async function POST(request: NextRequest) {
           { status: 503 }
         )
       }
+
       return NextResponse.json(
         { error: profileError.message || 'Failed to create user profile. Please try again.' },
         { status: 500 }
