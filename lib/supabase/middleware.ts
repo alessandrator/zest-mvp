@@ -38,39 +38,56 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
+  // Get user first
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser()
 
-
   if (userError) {
     console.warn('[Middleware] Error getting user:', userError.message)
   }
 
-  // Special handling for dashboard routes - check session as well for better reliability
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    console.log('[Middleware] Dashboard access without user, checking session as fallback')
-    // If we're going to dashboard but no user found, try to get session as fallback
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-    if (sessionError) {
-      console.warn('[Middleware] Error getting session:', sessionError.message)
-    } else if (session?.user) {
-      // Session exists but getUser didn't work, this is ok - let it proceed
-      console.log('[Middleware] Found valid session, allowing dashboard access')
-      return supabaseResponse
-    } else {
-      console.log('[Middleware] No valid session found either')
-
-    }
+  // Get session as fallback/additional validation
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+  
+  if (sessionError) {
+    console.warn('[Middleware] Error getting session:', sessionError.message)
   }
 
-  // Special handling for dashboard routes - extra validation
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !isAuthenticated) {
-    console.log('Dashboard access attempt without valid session, redirecting to login')
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+  // Determine if user is authenticated - valid if either user or session exists
+  const isAuthenticated = !!(user || session?.user)
+  
+  // Enhanced logging for debugging
+  console.log(`[Middleware] Route: ${request.nextUrl.pathname}`)
+  console.log(`[Middleware] User exists: ${!!user}`)
+  console.log(`[Middleware] Session exists: ${!!session}`)
+  console.log(`[Middleware] Session user exists: ${!!session?.user}`)
+  console.log(`[Middleware] Is authenticated: ${isAuthenticated}`)
+  
+  // Log cookie information for debugging
+  const cookies = request.cookies.getAll()
+  const authCookies = cookies.filter(cookie => 
+    cookie.name.includes('supabase') || 
+    cookie.name.includes('sb-') || 
+    cookie.name.includes('auth')
+  )
+  console.log(`[Middleware] Auth cookies found: ${authCookies.length}`)
+  authCookies.forEach(cookie => {
+    console.log(`[Middleware] Cookie: ${cookie.name} = ${cookie.value.substring(0, 20)}...`)
+  })
+
+  // Special handling for dashboard routes - enhanced validation (except demo)
+  if (request.nextUrl.pathname.startsWith('/dashboard') && !request.nextUrl.pathname.startsWith('/dashboard/demo')) {
+    if (!isAuthenticated) {
+      console.log('[Middleware] Dashboard access denied - no valid authentication found')
+      console.log('[Middleware] Redirecting to login')
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    } else {
+      console.log('[Middleware] Dashboard access granted - valid authentication found')
+    }
   }
 
   // Check if this is a protected route that requires authentication
@@ -89,7 +106,8 @@ export async function updateSession(request: NextRequest) {
 
   if (!isAuthenticated && isProtectedRoute) {
     // No user and trying to access protected route, redirect to login
-    console.log(`Protected route access attempt without authentication: ${request.nextUrl.pathname}`)
+    console.log(`[Middleware] Protected route access denied: ${request.nextUrl.pathname}`)
+    console.log('[Middleware] User not authenticated, redirecting to login')
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
