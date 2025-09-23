@@ -3,13 +3,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/supabase'
 
 export async function updateSession(request: NextRequest) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+
+  // If using placeholder values, just pass through without authentication
+  if (supabaseUrl.includes('placeholder') || supabaseAnonKey.includes('placeholder')) {
+    console.log('[Middleware] Supabase not configured, allowing all requests')
+    return NextResponse.next()
+  }
+
   const supabaseResponse = NextResponse.next({
     request,
   })
 
   const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {

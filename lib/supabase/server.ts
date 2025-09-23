@@ -34,6 +34,7 @@ export function createClient() {
           data: { session: null, user: null }, 
           error: { message: 'Supabase not configured' } 
         }),
+        signOut: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
         admin: {
           deleteUser: () => Promise.resolve({ data: null, error: null })
         }
