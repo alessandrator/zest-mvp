@@ -11,7 +11,12 @@ export function createClient() {
     return {
       auth: {
         signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-        resetPasswordForEmail: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+        resetPasswordForEmail: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        signUp: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: { message: 'Supabase not configured' } }),
+        getUser: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } }),
+        refreshSession: () => Promise.resolve({ data: { session: null }, error: { message: 'Supabase not configured' } }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any
@@ -19,6 +24,15 @@ export function createClient() {
 
   return createBrowserClient<Database>(
     supabaseUrl,
-    supabaseAnonKey
+    supabaseAnonKey,
+    {
+      // Enhanced cookie configuration for better session persistence
+      cookieOptions: {
+        name: 'sb',
+        domain: undefined, // Will use current domain including localhost
+        path: '/',
+        sameSite: 'lax' // Allow cross-site requests for localhost testing
+      }
+    }
   )
 }

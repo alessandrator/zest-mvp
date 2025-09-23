@@ -110,10 +110,11 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Errore generico API:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: error?.message || 'Errore interno del server.' },
+      { error: errorMessage || 'Errore interno del server.' },
       { status: 500 }
     )
   }

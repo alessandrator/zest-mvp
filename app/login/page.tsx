@@ -21,48 +21,106 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    console.log('[Login] Starting sign-in process for:', email)
+
     try {
       // Validate input
       const validatedData = signInSchema.parse({ email, password })
-
+      
       const supabase = createClient()
+      console.log('[Login] Attempting signInWithPassword...')
+      console.log('[Login] Current cookies before login:', document.cookie)
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
         password: validatedData.password,
       })
 
+      console.log('[Login] SignIn response:', { 
+        hasSession: !!data?.session, 
+        hasUser: !!data?.user,
+        sessionUserId: data?.session?.user?.id,
+        accessToken: !!data?.session?.access_token,
+        refreshToken: !!data?.session?.refresh_token,
+        error: error?.message
+      })
+
       if (error) {
+        console.error('[Login] Authentication error:', error)
         toast.error(error.message)
         return
       }
 
-      // --- PATCH: sincronizza i cookie della sessione lato server ---
-      if (data?.session?.access_token && data?.session?.refresh_token) {
-        const setSessionRes = await fetch('/api/auth/set-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token,
-          }),
+      if (data?.session) {
+        // Session established successfully
+        console.log('[Login] Session established successfully')
+        console.log('[Login] Session details:', {
+          userId: data.session.user.id,
+          email: data.session.user.email,
+          accessToken: !!data.session.access_token,
+          refreshToken: !!data.session.refresh_token,
+          expiresAt: data.session.expires_at
         })
-        if (setSessionRes.ok) {
-          window.location.href = '/dashboard'
-          return
-        } else {
-          toast.error('Errore nella sincronizzazione della sessione!')
+
+        // Try refreshing session to ensure it's properly established
+        const { data: refreshResult, error: refreshError } = await supabase.auth.refreshSession()
+        console.log('[Login] Session refresh result:', {
+          hasSession: !!refreshResult.data?.session,
+          hasUser: !!refreshResult.data?.user,
+          error: refreshResult.error?.message 
+        })
+        
+        if (refreshError) {
+          console.error('[Login] Session refresh failed:', refreshError)
+          toast.error('Failed to establish session. Please try again.')
           return
         }
+        
+        // Check if we can get the session back
+        const { data: sessionCheck, error: sessionCheckError } = await supabase.auth.getSession()
+        console.log('[Login] Session check after refresh:', { 
+          hasSession: !!sessionCheck.session,
+          userId: sessionCheck.session?.user?.id,
+          error: sessionCheckError?.message
+        })
+        
+        if (sessionCheckError) {
+          console.error('[Login] Session check error:', sessionCheckError)
+          toast.error('Failed to verify session. Please try again.')
+          return
+        }
+        
+        // Log cookies after successful authentication
+        console.log('[Login] Cookies after authentication:', document.cookie)
+        
+        // Wait exactly 1 second as required for cookies/session to be properly set
+        console.log('[Login] Waiting 1 second for cookies to be set...')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        console.log('[Login] Cookies after 1 second delay:', document.cookie)
+        
+        // Show success message
+        toast.success('Login successful! Redirecting...')
+        
+        // Redirect to callback page for proper session validation as required
+        console.log('[Login] Redirecting to callback...')
+        router.push('/callback')
+      } else {
+        // No session established
+        console.error('[Login] No session in response data')
+        toast.error('Failed to establish session. Please try again.')
       }
-      // -------------------------------------------------------------
-
-      toast.success('Welcome back!')
-      // router.push('/dashboard')
-      // router.refresh()
     } catch (error) {
+      console.error('[Login] Catch block error:', error)
       if (error instanceof Error) {
+        console.error('[Login] Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        })
         toast.error(error.message)
       } else {
+        console.error('[Login] Unknown error:', error)
         toast.error('Invalid email or password')
       }
     } finally {
@@ -84,7 +142,7 @@ export default function LoginPage() {
           Sign in to your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
+          Don&apos;t have an account?{' '}
           <Link
             href="/request-access"
             className="font-medium text-primary hover:text-primary-600"
