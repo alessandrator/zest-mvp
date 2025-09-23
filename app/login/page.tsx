@@ -24,9 +24,9 @@ export default function LoginPage() {
     try {
       // Validate input
       const validatedData = signInSchema.parse({ email, password })
-      
+
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
         password: validatedData.password,
       })
@@ -36,9 +36,29 @@ export default function LoginPage() {
         return
       }
 
+      // --- PATCH: sincronizza i cookie della sessione lato server ---
+      if (data?.session?.access_token && data?.session?.refresh_token) {
+        const setSessionRes = await fetch('/api/auth/set-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+          }),
+        })
+        if (setSessionRes.ok) {
+          window.location.href = '/dashboard'
+          return
+        } else {
+          toast.error('Errore nella sincronizzazione della sessione!')
+          return
+        }
+      }
+      // -------------------------------------------------------------
+
       toast.success('Welcome back!')
-      router.push('/dashboard')
-      router.refresh()
+      // router.push('/dashboard')
+      // router.refresh()
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)

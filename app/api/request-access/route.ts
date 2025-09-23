@@ -3,64 +3,60 @@ import { createClient } from '@/lib/supabase/server'
 import { requestAccessSchema } from '@/lib/validations'
 import { ZodError } from 'zod'
 
-interface AccessRequestData {
-  email: string;
-  role: string;
-  first_name: string;
-  last_name: string;
-  company: string | null;
-  message: string;
-  password: string;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const supabase = createClient()
     const body = await request.json()
 
-    // Validate the request data
-    const validatedData = requestAccessSchema.parse(body)
+    // Validazione dati (Zod)
+    let validatedData
+    try {
+      validatedData = requestAccessSchema.parse(body)
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return NextResponse.json(
+          { 
+            error: 'Dati non validi',
+            details: error.issues
+          },
+          { status: 400 }
+        )
+      }
+      throw error
+    }
 
-    // Create user with Supabase Auth
+    // Signup Supabase
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: validatedData.email,
       password: validatedData.password,
     })
 
     if (authError) {
-      console.error('Supabase auth error:', authError)
-      
-      // Handle specific auth errors
-      if (authError.message.includes('already registered')) {
-        return NextResponse.json(
-          { error: 'An account with this email already exists. Please sign in instead.' },
-          { status: 409 }
-        )
-      }
-      
+      console.error('Errore signup Supabase:', authError)
       return NextResponse.json(
-        { error: authError.message || 'Failed to create account. Please try again.' },
+        { error: authError.message || 'Errore durante la creazione dell\'account.' },
         { status: 400 }
       )
     }
 
-    if (!authData.user) {
+    if (!authData?.user) {
       return NextResponse.json(
-        { error: 'Failed to create user account' },
+        { error: 'Utente non creato, riprova.' },
         { status: 500 }
       )
     }
 
-    // Create user profile
+    // Crea profilo utente (inserisce anche il ruolo)
     const userProfile = {
-      user_id: authData.user.id,
-      role: validatedData.role,
-      first_name: validatedData.first_name,
-      last_name: validatedData.last_name,
-      company: validatedData.company || null,
-      verified: false,
-      active: true,
-    }
+  user_id: authData.user.id,
+  email: validatedData.email, // 
+  role: validatedData.role,
+  first_name: validatedData.first_name,
+  last_name: validatedData.last_name,
+  company: validatedData.company || null,
+  verified: false,
+  active: true,
+    };
 
     const { data: profileData, error: profileError } = await supabase
       .from('user_profiles')
@@ -69,46 +65,43 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profileError) {
-      console.error('Profile creation error:', profileError)
-      
-      // If profile creation fails, we should clean up the auth user
-      // Note: In a real app, you might want to handle this in a transaction
-      await supabase.auth.admin.deleteUser(authData.user.id)
-      
+      console.error('Errore creazione profilo:', profileError)
+      // Prova a cancellare l'utente se la creazione profilo fallisce (richiede service role key)
+      try {
+        await supabase.auth.admin.deleteUser(authData.user.id)
+      } catch (deleteError) {
+        console.warn('Errore cancellazione utente dopo fallimento profilo:', deleteError)
+      }
       return NextResponse.json(
-        { error: 'Failed to create user profile. Please try again.' },
+        { error: profileError.message || 'Errore durante la creazione del profilo utente.' },
         { status: 500 }
       )
     }
 
-    // Also store the access request for admin tracking
-    const accessRequest: AccessRequestData = {
-      email: validatedData.email,
-      role: validatedData.role,
-      first_name: validatedData.first_name,
-      last_name: validatedData.last_name,
-      company: validatedData.company || null,
-      message: validatedData.message,
-      password: '[REDACTED]', // Don't store the actual password
-    }
-
-    // Store access request (optional, for admin tracking)
-    // This will fail silently if the table doesn't exist yet
+    // (Facoltativo) Salva la richiesta di accesso per tracking admin
     try {
       await supabase
         .from('access_requests')
         .insert([{
-          ...accessRequest,
+          email: validatedData.email,
+          role: validatedData.role,
+          first_name: validatedData.first_name,
+          last_name: validatedData.last_name,
+          company: validatedData.company || null,
+          message: validatedData.message,
           user_id: authData.user.id,
-          status: 'approved', // Auto-approve since we're creating the account
+          status: 'approved',
+          password: '[REDACTED]', // Non salvare la password!
         }])
     } catch (error) {
-      console.log('Access request table not yet created, skipping insert:', error)
+      console.log('Tabella access_requests non trovata o errore scrittura:', error)
+      // Non bloccare la registrazione per questo errore
     }
 
+    // Tutto OK!
     return NextResponse.json(
       { 
-        message: 'Account created successfully! Please check your email to verify your account.',
+        message: 'Account creato con successo! Controlla la tua email per la verifica.',
         data: {
           user: authData.user,
           profile: profileData
@@ -117,20 +110,10 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
 
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return NextResponse.json(
-        { 
-          error: 'Invalid request data',
-          details: error.issues
-        },
-        { status: 400 }
-      )
-    }
-
-    console.error('API error:', error)
+  } catch (error: any) {
+    console.error('Errore generico API:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error?.message || 'Errore interno del server.' },
       { status: 500 }
     )
   }
