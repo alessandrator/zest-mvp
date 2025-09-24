@@ -24,6 +24,18 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('[SetSession] Error setting session:', error)
+      
+      // Handle Supabase not configured case more gracefully
+      if (error.message?.includes('not configured')) {
+        return NextResponse.json(
+          { 
+            error: 'Authentication service not configured',
+            message: 'Session cookies cannot be set because Supabase is not configured'
+          },
+          { status: 503 }
+        )
+      }
+      
       return NextResponse.json(
         { error: 'Failed to set session' },
         { status: 500 }
