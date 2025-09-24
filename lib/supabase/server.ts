@@ -23,6 +23,10 @@ export function createClient() {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
         getSession: () => Promise.resolve({ data: { session: null }, error: null }),
         refreshSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        setSession: () => Promise.resolve({ 
+          data: { session: null, user: null }, 
+          error: { message: 'Supabase not configured' } 
+        }),
         signUp: () => Promise.resolve({ 
           data: { user: null }, 
           error: { 
