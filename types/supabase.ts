@@ -90,6 +90,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
+          email: string;
           role: 'super_admin' | 'brand' | 'school_admin' | 'student' | 'consumer' | 'influencer';
           first_name: string;
           last_name: string;
@@ -109,6 +110,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
+          email: string;
           role: 'super_admin' | 'brand' | 'school_admin' | 'student' | 'consumer' | 'influencer';
           first_name: string;
           last_name: string;
@@ -128,6 +130,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
+          email?: string;
           role?: 'super_admin' | 'brand' | 'school_admin' | 'student' | 'consumer' | 'influencer';
           first_name?: string;
           last_name?: string;
